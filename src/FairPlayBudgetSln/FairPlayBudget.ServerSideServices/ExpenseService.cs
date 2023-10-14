@@ -17,7 +17,8 @@ namespace FairPlayBudget.ServerSideServices
             this.fairPlayBudgetDatabaseContext = fairPlayBudgetDatabaseContext;
             this.userProvider = userProvider;
         }
-        public async Task CreateExpenseAsync(CreateExpenseModel createExpenseModel)
+        public async Task CreateExpenseAsync(CreateExpenseModel createExpenseModel,
+            CancellationToken cancellationToken)
         {
             Expense entity = new Expense()
             {
@@ -26,11 +27,13 @@ namespace FairPlayBudget.ServerSideServices
                 ExpenseDateTime=createExpenseModel.ExpenseDateTime!.Value,
                 OwnerId = this.userProvider.GetCurrentUserId(),
             };
-            await this.fairPlayBudgetDatabaseContext.Expense.AddAsync(entity);
-            await this.fairPlayBudgetDatabaseContext.SaveChangesAsync();
+            await this.fairPlayBudgetDatabaseContext.Expense.AddAsync(entity,
+                cancellationToken:cancellationToken);
+            await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(
+                cancellationToken:cancellationToken);
         }
 
-        public async Task<MyExpenseModel[]> GetMyExpensesAsync()
+        public async Task<MyExpenseModel[]> GetMyExpensesAsync(CancellationToken cancellationToken)
         {
             var userId = this.userProvider.GetCurrentUserId();
             var result = await this.fairPlayBudgetDatabaseContext.Expense!
@@ -40,7 +43,7 @@ namespace FairPlayBudget.ServerSideServices
                     AmountInUsd = p.AmountInUsd,
                     Description=p.Description,
                     ExpenseDateTime=p.ExpenseDateTime,
-                }).ToArrayAsync();
+                }).ToArrayAsync(cancellationToken: cancellationToken);
             return result;
         }
     }

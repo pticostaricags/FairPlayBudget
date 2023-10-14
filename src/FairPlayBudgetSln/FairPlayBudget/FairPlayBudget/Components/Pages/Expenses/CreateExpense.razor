@@ -48,7 +48,8 @@
     private async Task OnValidSubmitAsync()
     {
         await Task.Yield();
-        await this.ExpenseService!.CreateExpenseAsync(this.createExpenseModel!);
+        await this.ExpenseService!.CreateExpenseAsync(this.createExpenseModel!,
+        CancellationToken.None);
         this.NavigationManager!.NavigateTo("/");
     }
 }

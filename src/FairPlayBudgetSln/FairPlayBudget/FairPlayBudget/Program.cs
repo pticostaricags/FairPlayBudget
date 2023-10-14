@@ -53,6 +53,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
 builder.Services.AddSingleton<IUserProviderService, UserProviderService>();
 builder.Services.AddTransient<IExpenseService, ExpenseService>();
+builder.Services.AddTransient<IIncomeService, IncomeService>();
 
 var app = builder.Build();
 

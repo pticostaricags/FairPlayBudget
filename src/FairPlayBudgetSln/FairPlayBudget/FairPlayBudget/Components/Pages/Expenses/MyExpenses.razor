@@ -33,6 +33,7 @@
 
     private async Task GetDataAsync()
     {
-        this.MyExpensesModel = (await this.ExpenseService!.GetMyExpensesAsync()).AsQueryable();
+        this.MyExpensesModel = (await this.ExpenseService!.GetMyExpensesAsync(
+        CancellationToken.None)).AsQueryable();
     }
 }

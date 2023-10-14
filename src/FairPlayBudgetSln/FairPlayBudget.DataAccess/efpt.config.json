@@ -46,6 +46,10 @@
       {
          "Name": "[dbo].[Expense]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Income]",
+         "ObjectType": 0
       }
    ],
    "UiHint": "..\\FairPlayBudget.Database\\FairPlayBudget.Database.sqlproj",

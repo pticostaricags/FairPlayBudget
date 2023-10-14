@@ -6,6 +6,8 @@
         {
             public const string CreateExpense = $"/Expenses/{nameof(CreateExpense)}";
             public const string MyExpenses = $"/Expenses/{nameof(MyExpenses)}";
+
+            public const string CreateIncome = $"/Expenses/{nameof(CreateIncome)}";
         }
     }
 }

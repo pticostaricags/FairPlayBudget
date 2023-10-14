@@ -9,7 +9,7 @@ namespace FairPlayBudget.Interfaces.Services
 {
     public interface IExpenseService
     {
-        Task CreateExpenseAsync(CreateExpenseModel createExpenseModel);
-        Task<MyExpenseModel[]> GetMyExpensesAsync();
+        Task CreateExpenseAsync(CreateExpenseModel createExpenseModel, CancellationToken cancellationToken);
+        Task<MyExpenseModel[]> GetMyExpensesAsync(CancellationToken cancellationToken);
     }
 }
