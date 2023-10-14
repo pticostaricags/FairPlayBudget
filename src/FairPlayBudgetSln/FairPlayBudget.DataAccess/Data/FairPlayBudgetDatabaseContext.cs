@@ -30,10 +30,10 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
 
     public virtual DbSet<Income> Income { get; set; }
 
+    public virtual DbSet<VwBalance> VwBalance { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasAnnotation("Scaffolding:ConnectionString", "Data Source=(local);Initial Catalog=FairPlayBudget.Database;Integrated Security=true");
-
         modelBuilder.Entity<AspNetRoles>(entity =>
         {
             entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
@@ -71,6 +71,11 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
             entity.HasOne(d => d.Owner).WithMany(p => p.Income)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Income_AspNetUsers");
+        });
+
+        modelBuilder.Entity<VwBalance>(entity =>
+        {
+            entity.ToView("vwBalance");
         });
 
         OnModelCreatingPartial(modelBuilder);

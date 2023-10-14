@@ -50,9 +50,13 @@
       {
          "Name": "[dbo].[Income]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[vwBalance]",
+         "ObjectType": 3
       }
    ],
-   "UiHint": "..\\FairPlayBudget.Database\\FairPlayBudget.Database.sqlproj",
+   "UiHint": "laptop-6u597bdb.FairPlayBudget.dbo",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,

@@ -54,6 +54,7 @@ builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
 builder.Services.AddSingleton<IUserProviderService, UserProviderService>();
 builder.Services.AddTransient<IExpenseService, ExpenseService>();
 builder.Services.AddTransient<IIncomeService, IncomeService>();
+builder.Services.AddTransient<IBalanceService, BalanceService>();
 
 var app = builder.Build();
 

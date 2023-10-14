@@ -11,13 +11,13 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "FairPlayBudget.Database", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.DataAccess", "FairPlayBudget.DataAccess\FairPlayBudget.DataAccess.csproj", "{1337ADFC-7C5B-4EB0-BB67-47780C1DEA67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.Models", "FairPlayBudget.Models\FairPlayBudget.Models.csproj", "{4002E9DB-F3B5-433A-94D6-E16F98915864}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.Models", "FairPlayBudget.Models\FairPlayBudget.Models.csproj", "{4002E9DB-F3B5-433A-94D6-E16F98915864}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.Common", "FairPlayBudget.Common\FairPlayBudget.Common.csproj", "{2C4D193D-E03F-4BF3-91A9-1C5454BDCB7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.Common", "FairPlayBudget.Common\FairPlayBudget.Common.csproj", "{2C4D193D-E03F-4BF3-91A9-1C5454BDCB7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.ServerSideServices", "FairPlayBudget.ServerSideServices\FairPlayBudget.ServerSideServices.csproj", "{3B8695C1-AA90-40F8-A9B3-958A7FCE1617}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.ServerSideServices", "FairPlayBudget.ServerSideServices\FairPlayBudget.ServerSideServices.csproj", "{3B8695C1-AA90-40F8-A9B3-958A7FCE1617}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.Interfaces", "FairPlayBudget.Interfaces\FairPlayBudget.Interfaces.csproj", "{03689DC2-E7FB-487A-A3D6-2653AA33CDA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.Interfaces", "FairPlayBudget.Interfaces\FairPlayBudget.Interfaces.csproj", "{03689DC2-E7FB-487A-A3D6-2653AA33CDA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
