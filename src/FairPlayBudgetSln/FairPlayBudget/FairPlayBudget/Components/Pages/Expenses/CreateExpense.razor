@@ -1,0 +1,54 @@
+﻿@attribute [Route(FairPlayBudget.Common.Constants.AppRoutes.CreateExpense)]
+@attribute [Authorize]
+@using FairPlayBudget.Interfaces.Services
+@using FairPlayBudget.Models.Expense
+@using Microsoft.AspNetCore.Authorization
+<h3>CreateExpense</h3>
+
+
+@if (this.createExpenseModel != null)
+{
+
+    <EditForm FormName="frmCreateExpense" Model="@this.createExpenseModel" OnValidSubmit="OnValidSubmitAsync">
+        <div class="mb-3">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@nameof(CreateExpenseModel.AmountInUsd)</label>
+            <InputNumber class="form-control" @bind-Value="@this.createExpenseModel.AmountInUsd"></InputNumber>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@nameof(CreateExpenseModel.Description)</label>
+            <InputText class="form-control" @bind-Value="@this.createExpenseModel.Description"></InputText>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@nameof(CreateExpenseModel.ExpenseDateTime)</label>
+            <InputDate class="form-control" @bind-Value="@this.createExpenseModel.ExpenseDateTime"></InputDate>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    private CreateExpenseModel? createExpenseModel { get; set; }
+    [Inject]
+    private IExpenseService? ExpenseService { get; set; }
+    [Inject]
+    private NavigationManager? NavigationManager { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.createExpenseModel ??= new();
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        await Task.Yield();
+        await this.ExpenseService!.CreateExpenseAsync(this.createExpenseModel!);
+        this.NavigationManager!.NavigateTo("/");
+    }
+}

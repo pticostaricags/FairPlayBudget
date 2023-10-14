@@ -1,0 +1,38 @@
+﻿@using FairPlayBudget.Interfaces.Services
+@using FairPlayBudget.Models.Expense
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@attribute [Route(FairPlayBudget.Common.Constants.AppRoutes.MyExpenses)]
+@attribute [Authorize]
+<h3>MyExpenses</h3>
+
+@if (this.MyExpensesModel != null)
+{
+    <QuickGrid Items="@this.MyExpensesModel" Pagination="@this.paginationState">
+        <PropertyColumn Property="@( p=>p.ExpenseDateTime)" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="@( p=>p.AmountInUsd)" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="@( p=>p.Description)" Sortable="true"></PropertyColumn>
+    </QuickGrid>
+
+    <Paginator State="@paginationState"></Paginator>
+
+}
+
+@code {
+    [Inject]
+    private IExpenseService? ExpenseService { get; set; }
+    private IQueryable<MyExpenseModel>? MyExpensesModel { get; set; }
+    private PaginationState paginationState = new PaginationState()
+        {
+            ItemsPerPage = 10
+        };
+    protected override async Task OnInitializedAsync()
+    {
+        await this.GetDataAsync();
+    }
+
+    private async Task GetDataAsync()
+    {
+        this.MyExpensesModel = (await this.ExpenseService!.GetMyExpensesAsync()).AsQueryable();
+    }
+}
