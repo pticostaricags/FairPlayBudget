@@ -3,7 +3,13 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Route(Common.Constants.AppRoutes.MyBalance)]
 @attribute [Authorize]
-<h3>MyBalance</h3>
+<PageTitle>
+    @nameof(Common.Constants.AppRoutes.MyBalance)
+</PageTitle>
+
+<h3>
+    @nameof(Common.Constants.AppRoutes.MyBalance)
+</h3>
 
 @if (this.MyBalanceModel != null)
 {

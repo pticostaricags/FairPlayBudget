@@ -4,7 +4,13 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @attribute [Route(FairPlayBudget.Common.Constants.AppRoutes.MyExpenses)]
 @attribute [Authorize]
-<h3>MyExpenses</h3>
+<PageTitle>
+    @nameof(Common.Constants.AppRoutes.MyExpenses)
+</PageTitle>
+
+<h3>
+    @nameof(Common.Constants.AppRoutes.MyExpenses)
+</h3>
 
 @if (this.MyExpensesModel != null)
 {
