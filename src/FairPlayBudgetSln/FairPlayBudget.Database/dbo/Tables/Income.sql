@@ -5,5 +5,7 @@
     [Description] NVARCHAR(50) NOT NULL, 
     [AmountInUSD] MONEY NOT NULL, 
     [OwnerId] NVARCHAR(450) NOT NULL, 
+    [MonthlyBudgetInfoId] BIGINT NULL, 
     CONSTRAINT [FK_Income_AspNetUsers] FOREIGN KEY ([OwnerId]) REFERENCES [AspNetUsers]([Id]), 
+    CONSTRAINT [FK_Income_MonthlyBudgetInfo] FOREIGN KEY ([MonthlyBudgetInfoId]) REFERENCES [MonthlyBudgetInfo]([MonthlyBudgetInfoId]), 
 )
