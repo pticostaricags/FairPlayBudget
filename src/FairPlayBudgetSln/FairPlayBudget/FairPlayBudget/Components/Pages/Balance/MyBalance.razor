@@ -19,7 +19,8 @@
 
 @if (this.SelectableBudgetNames != null)
 {
-    <InputSelect ValueExpression="@(() => this.SelectedBudgetName)"
+    <InputSelect class="form-select"
+        ValueExpression="@(() => this.SelectedBudgetName)"
                  Value="@this.SelectedBudgetName"
                  ValueChanged="@((string selectedValue) => OnSelectedBudgetNameChanged(selectedValue))">
         @foreach (var singleBudgetName in this.SelectableBudgetNames)
@@ -28,7 +29,7 @@
         }
     </InputSelect>
 }
-<InputSelect ValueExpression="@( () => this.SelectedCurrency)"
+<InputSelect class="form-select" ValueExpression="@( () => this.SelectedCurrency)"
     Value="@this.SelectedCurrency"
     ValueChanged="@( (Currency? selectedValue) => OnSelectedCurrencyChanged(selectedValue))"
 >
