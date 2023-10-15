@@ -27,23 +27,27 @@ namespace FairPlayBudget.ServerSideServices
         {
             var result = await this.fairPlayBudgetDatabaseContext!
                 .MonthlyBudgetInfo.Select(p => p.Description).Distinct().ToArrayAsync(
-                cancellationToken:cancellationToken);
+                cancellationToken: cancellationToken);
             return result;
         }
 
         public async Task<MyBalanceModel[]> GetMyBalanceAsync(
-            string budgetName,CancellationToken cancellationToken)
+            string budgetName,
+            Currency currency,
+            CancellationToken cancellationToken)
         {
             var userId = this.userProvider.GetCurrentUserId();
             var result = await this.fairPlayBudgetDatabaseContext.VwBalance
-                .Where(p => p.OwnerId == userId && p.MonthlyBudgetDescription == budgetName)
-                .Select(p => new MyBalanceModel() 
+                .Where(p => p.OwnerId == userId && p.MonthlyBudgetDescription == budgetName
+                && p.CurrencyId == (int)currency
+                )
+                .Select(p => new MyBalanceModel()
                 {
-                    Amount=p.Amount,
+                    Amount = p.Amount,
                     Currency = (Currency)p.CurrencyId,
-                    DateTime=p.DateTime,
-                    Description=p.Description,
-                    TransactionType=p.TransactionType,
+                    DateTime = p.DateTime,
+                    Description = p.Description,
+                    TransactionType = p.TransactionType,
                     MonthlyBudgetDescription = p.MonthlyBudgetDescription
                 })
                 .ToArrayAsync(cancellationToken: cancellationToken);
