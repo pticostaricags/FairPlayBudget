@@ -22,5 +22,7 @@ namespace FairPlayBudget.Models.Balance
         [Required]
         [StringLength(50)]
         public string? Description { get; set; }
+        [Required]
+        public string? MonthlyBudgetDescription { get; set; }
     }
 }

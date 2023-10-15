@@ -28,4 +28,11 @@ public partial class VwBalance
     public string Description { get; set; }
 
     public int CurrencyId { get; set; }
+
+    [Required]
+    [StringLength(50)]
+    public string Currency { get; set; }
+
+    [StringLength(150)]
+    public string MonthlyBudgetDescription { get; set; }
 }

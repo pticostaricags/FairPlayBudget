@@ -9,6 +9,7 @@ namespace FairPlayBudget.Interfaces.Services
 {
     public interface IBalanceService
     {
-        Task<MyBalanceModel[]> GetMyBalanceAsync(CancellationToken cancellationToken);
+        Task<MyBalanceModel[]> GetMyBalanceAsync(string budgetName,CancellationToken cancellationToken);
+        Task<string[]> GetBudgetNamesAsync(CancellationToken cancellationToken);
     }
 }
