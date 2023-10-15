@@ -43,7 +43,8 @@ namespace FairPlayBudget.ServerSideServices
                                 AmountInUsd = singleTransaction.AmountInUsd!.Value,
                                 Description = singleTransaction.Description,
                                 ExpenseDateTime = singleTransaction.TransactionDateTime!.Value,
-                                OwnerId = userId
+                                OwnerId = userId,
+                                CurrencyId = (int)singleTransaction.Currency!.Value
                             });
                             break;
                         case Common.Enums.TransactionType.Credit:
@@ -52,7 +53,8 @@ namespace FairPlayBudget.ServerSideServices
                                 AmountInUsd = singleTransaction.AmountInUsd!.Value,
                                 Description = singleTransaction.Description,
                                 IncomeDateTime = singleTransaction.TransactionDateTime!.Value,
-                                OwnerId = userId
+                                OwnerId = userId,
+                                CurrencyId = (int)singleTransaction.Currency!.Value
                             });
                             break;
                     };
