@@ -1,0 +1,89 @@
+﻿@using FairPlayBudget.Common.Enums
+@using FairPlayBudget.Models.MonthlyBudgetInfo
+@using Microsoft.AspNetCore.Authorization
+@attribute [Route(Common.Constants.AppRoutes.CreateMonthlyBudgetInfo)]
+@attribute [Authorize]
+@rendermode RenderMode.InteractiveServer
+
+<h3>CreateMonthlyBudgetInfo</h3>
+<EditForm FormName="frmMonthlyBudgetInfo" Model="@this.createMonthlyBudgetInfoModel"
+          OnValidSubmit="OnValidSubmitAsync">
+    <div class="mb-3">
+        <ObjectGraphDataAnnotationsValidator />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">@nameof(CreateMonthlyBudgetInfoModel.Description)</label>
+        <InputText class="form-control" @bind-Value="@createMonthlyBudgetInfoModel.Description"></InputText>
+        <ValidationMessage For="@( ()=> createMonthlyBudgetInfoModel.Description)"></ValidationMessage>
+    </div>
+    @if (this.createMonthlyBudgetInfoModel!.Transactions?.Count > 0)
+    {
+        <div class="row">
+            <div class="col">
+                @nameof(CreateTransactionModel.TransactionType)
+            </div>
+            <div class="col">
+                @nameof(CreateTransactionModel.TransactionDateTime)
+            </div>
+            <div class="col">
+                @nameof(CreateTransactionModel.AmountInUsd)
+            </div>
+            <div class="col">
+                @nameof(CreateTransactionModel.Description)
+            </div>
+        </div>
+        foreach (var singleTransaction in this.createMonthlyBudgetInfoModel.Transactions)
+        {
+            <div class="row">
+                <div class="col">
+                    <InputSelect class="form-select"
+                                 ValueExpression="@( () => singleTransaction.TransactionType)"
+                                 Value="@singleTransaction.TransactionType"
+                                 ValueChanged="@( (TransactionType? selectedValue) => singleTransaction.TransactionType=selectedValue)">
+                        <option value="">Select Transaction Type</option>
+                        <option value="@TransactionType.Debit">@TransactionType.Debit</option>
+                        <option value="@TransactionType.Credit">@TransactionType.Credit</option>
+                    </InputSelect>
+                    <ValidationMessage For="@( () => singleTransaction.TransactionType)"></ValidationMessage>
+                </div>
+                <div class="col">
+                    <InputDate class="form-control" @bind-Value="@singleTransaction.TransactionDateTime"></InputDate>
+                </div>
+                <div class="col">
+                    <InputNumber class="form-control" @bind-Value="@singleTransaction.AmountInUsd"></InputNumber>
+                </div>
+                <div class="col">
+                    <InputText class="form-control" @bind-Value="@singleTransaction.Description"></InputText>
+                </div>
+            </div>
+        }
+    }
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary" type="button"
+                @onclick="OnAddTransactionClicked">
+            Add Transaction
+        </button>
+    </div>
+    <div class="mb-3">
+        <button class="btn btn-primary" type="submit">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel { get; set; } =
+        new CreateMonthlyBudgetInfoModel()
+            {
+                Transactions = new List<CreateTransactionModel>()
+            };
+
+    private async Task OnValidSubmitAsync()
+    {
+        await Task.Yield();
+    }
+
+    private void OnAddTransactionClicked()
+    {
+        this.createMonthlyBudgetInfoModel.Transactions!.Add(new CreateTransactionModel());
+    }
+}

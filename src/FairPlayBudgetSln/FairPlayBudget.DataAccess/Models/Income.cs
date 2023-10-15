@@ -26,6 +26,12 @@ public partial class Income
     [StringLength(450)]
     public string OwnerId { get; set; }
 
+    public long? MonthlyBudgetInfoId { get; set; }
+
+    [ForeignKey("MonthlyBudgetInfoId")]
+    [InverseProperty("Income")]
+    public virtual MonthlyBudgetInfo MonthlyBudgetInfo { get; set; }
+
     [ForeignKey("OwnerId")]
     [InverseProperty("Income")]
     public virtual AspNetUsers Owner { get; set; }

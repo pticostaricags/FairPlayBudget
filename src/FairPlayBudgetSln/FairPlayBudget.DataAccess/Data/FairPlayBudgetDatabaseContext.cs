@@ -30,6 +30,8 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
 
     public virtual DbSet<Income> Income { get; set; }
 
+    public virtual DbSet<MonthlyBudgetInfo> MonthlyBudgetInfo { get; set; }
+
     public virtual DbSet<VwBalance> VwBalance { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,6 +63,8 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
 
         modelBuilder.Entity<Expense>(entity =>
         {
+            entity.HasOne(d => d.MonthlyBudgetInfo).WithMany(p => p.Expense).HasConstraintName("FK_Expense_MonthlyBudgetInfo");
+
             entity.HasOne(d => d.Owner).WithMany(p => p.Expense)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Expense_AspNetUsers");
@@ -68,6 +72,8 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
 
         modelBuilder.Entity<Income>(entity =>
         {
+            entity.HasOne(d => d.MonthlyBudgetInfo).WithMany(p => p.Income).HasConstraintName("FK_Income_MonthlyBudgetInfo");
+
             entity.HasOne(d => d.Owner).WithMany(p => p.Income)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Income_AspNetUsers");
