@@ -32,6 +32,9 @@
             <div class="col">
                 @nameof(CreateTransactionModel.Description)
             </div>
+            <div class="col">
+                @nameof(CreateTransactionModel.Currency)
+            </div>
         </div>
         foreach (var singleTransaction in this.createMonthlyBudgetInfoModel.Transactions)
         {
@@ -57,14 +60,15 @@
                     <InputText class="form-control" @bind-Value="@singleTransaction.Description"></InputText>
                 </div>
                 <div class="col">
-                    <InputSelect class="form-select" 
-                    ValueExpression="@( () => singleTransaction.Currency)"
-                    Value="@singleTransaction.Currency"
-                    ValueChanged="@( (Currency? selectedValue) => singleTransaction.Currency = selectedValue)"
-                    >
+                    <InputSelect class="form-select"
+                                 ValueExpression="@( () => singleTransaction.Currency)"
+                                 Value="@singleTransaction.Currency"
+                                 ValueChanged="@( (Currency? selectedValue) => singleTransaction.Currency = selectedValue)">
                         <option value="">Select a Currency</option>
-                        <option value="@Currency.USD">USD</option>
-                        <option value="@Currency.CRC">CRC</option>
+                        @foreach (var singleCurrency in Enum.GetValues<Currency>())
+                        {
+                            <option value="@singleCurrency">@singleCurrency.ToString()</option>
+                        }
                     </InputSelect>
                 </div>
             </div>
@@ -83,7 +87,18 @@
 
 Import From File:
 <InputFile OnChange="OnFileSelected" accept=".csv"></InputFile>
-
+Override Currency:
+<InputSelect 
+    class="form-select"
+    ValueExpression="@( () => this.SelectedCurrencyForOverride)"
+             Value="@this.SelectedCurrencyForOverride"
+             ValueChanged="( (Currency selectedValue) => OnOverrideCurrencyChanged(selectedValue) )">
+    @foreach (var singleCurrency in Enum.GetValues<Currency>())
+    {
+        <option value="@singleCurrency">@singleCurrency.ToString()</option>
+    }
+</InputSelect>
+<button class="btn btn-secondary" type="button" @onclick="OnOverrideCurrencyButtonClicked">Set Currency</button>
 @code {
     [Inject]
     private IMonthlyBudgetInfoService? MonthlyBudgetInfoService { get; set; }
@@ -91,10 +106,11 @@ Import From File:
     private NavigationManager? NavigationManager { get; set; }
     [SupplyParameterFromForm]
     private CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel { get; set; } =
-        new CreateMonthlyBudgetInfoModel()
-            {
-                Transactions = new List<CreateTransactionModel>()
-            };
+    new CreateMonthlyBudgetInfoModel()
+        {
+            Transactions = new List<CreateTransactionModel>()
+        };
+    private Currency SelectedCurrencyForOverride = Currency.USD;
 
     private async Task OnValidSubmitAsync()
     {
@@ -119,6 +135,23 @@ Import From File:
             cancellationToken: CancellationToken.None);
             this.createMonthlyBudgetInfoModel = await this.MonthlyBudgetInfoService!
             .ImportFromFileStreamAsync(stream, cancellationToken: CancellationToken.None);
+        }
+    }
+
+
+    private void OnOverrideCurrencyChanged(Currency? selectedNewCurrency)
+    {
+        this.SelectedCurrencyForOverride = selectedNewCurrency!.Value;
+    }
+
+    private void OnOverrideCurrencyButtonClicked()
+    {
+        if (this.createMonthlyBudgetInfoModel.Transactions?.Count > 0)
+        {
+            foreach (var singleTransaction in this.createMonthlyBudgetInfoModel.Transactions)
+            {
+                singleTransaction.Currency = SelectedCurrencyForOverride;
+            }
         }
     }
 }
