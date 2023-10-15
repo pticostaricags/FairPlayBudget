@@ -1,4 +1,5 @@
 ﻿@using FairPlayBudget.Common.Enums
+@using FairPlayBudget.Interfaces.Services
 @using FairPlayBudget.Models.MonthlyBudgetInfo
 @using Microsoft.AspNetCore.Authorization
 @attribute [Route(Common.Constants.AppRoutes.CreateMonthlyBudgetInfo)]
@@ -70,6 +71,10 @@
 </EditForm>
 
 @code {
+    [Inject]
+    private IMonthlyBudgetInfoService? MonthlyBudgetInfoService { get; set; }
+    [Inject]
+    private NavigationManager? NavigationManager { get; set; }
     [SupplyParameterFromForm]
     private CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel { get; set; } =
         new CreateMonthlyBudgetInfoModel()
@@ -79,7 +84,10 @@
 
     private async Task OnValidSubmitAsync()
     {
-        await Task.Yield();
+        await this.MonthlyBudgetInfoService!
+        .CreateMonthlyBudgetInfoAsync(this.createMonthlyBudgetInfoModel,
+        CancellationToken.None);
+        this.NavigationManager!.NavigateTo(Common.Constants.AppRoutes.MyBalance);
     }
 
     private void OnAddTransactionClicked()

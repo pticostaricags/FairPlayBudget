@@ -41,20 +41,18 @@ builder.Services.AddDbContext<FairPlayBudgetDatabaseContext>(
     {
         optionsAction.UseSqlServer(
             connectionString, sqlServerOptionsAction =>
-        {
-            sqlServerOptionsAction.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(3),
-                errorNumbersToAdd: null);
-        });
+            {
+                sqlServerOptionsAction.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(3),
+                    errorNumbersToAdd: null);
+            });
     });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
-builder.Services.AddSingleton<IUserProviderService, UserProviderService>();
-builder.Services.AddTransient<IExpenseService, ExpenseService>();
-builder.Services.AddTransient<IIncomeService, IncomeService>();
-builder.Services.AddTransient<IBalanceService, BalanceService>();
+
+AddServerSideServices(builder);
 
 var app = builder.Build();
 
@@ -84,3 +82,12 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+
+static void AddServerSideServices(WebApplicationBuilder builder)
+{
+    builder.Services.AddSingleton<IUserProviderService, UserProviderService>();
+    builder.Services.AddTransient<IExpenseService, ExpenseService>();
+    builder.Services.AddTransient<IIncomeService, IncomeService>();
+    builder.Services.AddTransient<IBalanceService, BalanceService>();
+    builder.Services.AddTransient<IMonthlyBudgetInfoService, MonthlyBudgetInfoService>();
+}
