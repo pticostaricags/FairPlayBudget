@@ -46,5 +46,24 @@ namespace FairPlayBudget.ServerSideServices
                 }).ToArrayAsync(cancellationToken: cancellationToken);
             return result;
         }
+
+        public async Task<MyExpenseModel[]> GetMyExpensesForMonthAsync(int year, int month, CancellationToken cancellationToken)
+        {
+            if (month <= 0 || month > 12)
+                throw new ArgumentOutOfRangeException(nameof(month), month,
+                    $"Month value must be between 1 and 12");
+            var userId = this.userProvider.GetCurrentUserId();
+            var result = await this.fairPlayBudgetDatabaseContext.Expense!
+                .Where(p => p.OwnerId == userId &&
+                p.ExpenseDateTime.Month == month && 
+                p.ExpenseDateTime.Year == year)
+                .Select(p => new MyExpenseModel()
+                {
+                    AmountInUsd = p.AmountInUsd,
+                    Description = p.Description,
+                    ExpenseDateTime = p.ExpenseDateTime,
+                }).ToArrayAsync(cancellationToken: cancellationToken);
+            return result;
+        }
     }
 }

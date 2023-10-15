@@ -12,26 +12,58 @@
     @nameof(Common.Constants.AppRoutes.MyExpenses)
 </h3>
 
+<label class="form-label">Select a Month</label>
+<InputSelect class="form-select"
+             ValueExpression="@( () => this.SelectedMonth)"
+             Value="@this.SelectedMonth"
+             ValueChanged="@( async (int selectedValue) => await OnSelectedMonthChanged(selectedValue))">
+    <option value="1">January</option>
+    <option value="2">February</option>
+    <option value="3">March</option>
+    <option value="4">April</option>
+    <option value="5">May</option>
+    <option value="6">June</option>
+    <option value="7">July</option>
+    <option value="8">August</option>
+    <option value="9">September</option>
+    <option value="10">October</option>
+    <option value="11">November</option>
+    <option value="12">December</option>
+</InputSelect>
+
+<InputSelect class="form-select"
+             ValueExpression="@(()=>this.SelectedYear)"
+             Value="@this.SelectedYear"
+             ValueChanged="@( async (int selectedValue) => await OnSelectedYearChanged(selectedValue))">
+    @foreach (var singleOption in this.SelectableYears)
+    {
+        <option value="@singleOption">@singleOption</option>
+    }
+</InputSelect>
+
 @if (this.MyExpensesModel != null)
 {
-    <QuickGrid Items="@this.MyExpensesModel" Pagination="@this.paginationState">
+    <QuickGrid Items="@this.MyExpensesModel">
         <PropertyColumn Property="@( p=>p.ExpenseDateTime)" Sortable="true"></PropertyColumn>
-        <PropertyColumn Property="@( p=>p.AmountInUsd)" Sortable="true"></PropertyColumn>
+        <PropertyColumn Property="@( p=>p.AmountInUsd)" Format="c" Sortable="true"></PropertyColumn>
         <PropertyColumn Property="@( p=>p.Description)" Sortable="true"></PropertyColumn>
     </QuickGrid>
-
-    <Paginator State="@paginationState"></Paginator>
-
 }
 
 @code {
     [Inject]
     private IExpenseService? ExpenseService { get; set; }
     private IQueryable<MyExpenseModel>? MyExpensesModel { get; set; }
-    private PaginationState paginationState = new PaginationState()
+    private int SelectedMonth { get; set; } = DateTimeOffset.Now.Month;
+    private int SelectedYear { get; set; } = DateTimeOffset.Now.Year;
+    private int[] SelectableYears
+    {
+        get
         {
-            ItemsPerPage = 10
-        };
+            int[] result = Enumerable.Range(this.SelectedYear - 20, 20).ToArray();
+            return result;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await this.GetDataAsync();
@@ -41,5 +73,24 @@
     {
         this.MyExpensesModel = (await this.ExpenseService!.GetMyExpensesAsync(
         CancellationToken.None)).AsQueryable();
+    }
+
+    private async Task OnSelectedMonthChanged(int selectedMonth)
+    {
+        this.SelectedMonth = selectedMonth;
+        await LoadDataAsync();
+    }
+
+    private async Task OnSelectedYearChanged(int selectedYear)
+    {
+        this.SelectedYear = selectedYear;
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        var result = await this.ExpenseService!.GetMyExpensesForMonthAsync(
+            this.SelectedYear, this.SelectedMonth, CancellationToken.None);
+        this.MyExpensesModel = result.AsQueryable();
     }
 }
