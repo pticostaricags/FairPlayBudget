@@ -70,6 +70,9 @@
     </div>
 </EditForm>
 
+Import From File:
+<InputFile OnChange="OnFileSelected"></InputFile>
+
 @code {
     [Inject]
     private IMonthlyBudgetInfoService? MonthlyBudgetInfoService { get; set; }
@@ -93,5 +96,18 @@
     private void OnAddTransactionClicked()
     {
         this.createMonthlyBudgetInfoModel.Transactions!.Add(new CreateTransactionModel());
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs inputFileChangeEventArgs)
+    {
+        if (inputFileChangeEventArgs.FileCount == 1)
+        {
+            int maxAllowedSizeInMB = 10;
+            int maxAllowedSizeInKb = maxAllowedSizeInMB * 1024 * 1024;
+            var stream = inputFileChangeEventArgs.File.OpenReadStream(maxAllowedSizeInKb,
+            cancellationToken: CancellationToken.None);
+            this.createMonthlyBudgetInfoModel = await this.MonthlyBudgetInfoService!
+            .ImportFromFileStreamAsync(stream, cancellationToken: CancellationToken.None);
+        }
     }
 }

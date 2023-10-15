@@ -11,5 +11,6 @@ namespace FairPlayBudget.Interfaces.Services
     {
         Task CreateMonthlyBudgetInfoAsync(CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel,
             CancellationToken cancellationToken);
+        Task<CreateMonthlyBudgetInfoModel> ImportFromFileStreamAsync(Stream stream, CancellationToken cancellationToken);
     }
 }
