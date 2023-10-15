@@ -6,6 +6,9 @@
 @attribute [Authorize]
 @rendermode RenderMode.InteractiveServer
 
+<FairPlayBudget.Components.Spinners.LoadingIndicator
+ShowSpinners="@this.IsBusy"
+></FairPlayBudget.Components.Spinners.LoadingIndicator>
 <h3>CreateMonthlyBudgetInfo</h3>
 <EditForm FormName="frmMonthlyBudgetInfo" Model="@this.createMonthlyBudgetInfoModel"
           OnValidSubmit="OnValidSubmitAsync">
@@ -111,12 +114,15 @@ Override Currency:
             Transactions = new List<CreateTransactionModel>()
         };
     private Currency SelectedCurrencyForOverride = Currency.USD;
+    private bool IsBusy { get; set; }
 
     private async Task OnValidSubmitAsync()
     {
+        IsBusy = true;
         await this.MonthlyBudgetInfoService!
         .CreateMonthlyBudgetInfoAsync(this.createMonthlyBudgetInfoModel,
         CancellationToken.None);
+        IsBusy = false;
         this.NavigationManager!.NavigateTo(Common.Constants.AppRoutes.MyBalance);
     }
 
@@ -127,6 +133,7 @@ Override Currency:
 
     private async Task OnFileSelected(InputFileChangeEventArgs inputFileChangeEventArgs)
     {
+        IsBusy = true;
         if (inputFileChangeEventArgs.FileCount == 1)
         {
             int maxAllowedSizeInMB = 10;
@@ -136,6 +143,7 @@ Override Currency:
             this.createMonthlyBudgetInfoModel = await this.MonthlyBudgetInfoService!
             .ImportFromFileStreamAsync(stream, cancellationToken: CancellationToken.None);
         }
+        IsBusy = false;
     }
 
 
@@ -146,6 +154,7 @@ Override Currency:
 
     private void OnOverrideCurrencyButtonClicked()
     {
+        IsBusy = true;
         if (this.createMonthlyBudgetInfoModel.Transactions?.Count > 0)
         {
             foreach (var singleTransaction in this.createMonthlyBudgetInfoModel.Transactions)
@@ -153,5 +162,6 @@ Override Currency:
                 singleTransaction.Currency = SelectedCurrencyForOverride;
             }
         }
+        IsBusy = false;
     }
 }

@@ -3,10 +3,15 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Route(Common.Constants.AppRoutes.MyBalance)]
 @attribute [Authorize]
+@attribute [StreamRendering(enabled:true)]
 @rendermode RenderMode.InteractiveServer
 <PageTitle>
     @nameof(Common.Constants.AppRoutes.MyBalance)
 </PageTitle>
+
+<FairPlayBudget.Components.Spinners.LoadingIndicator
+ShowSpinners="@IsBusy"
+></FairPlayBudget.Components.Spinners.LoadingIndicator>
 
 <h3>
     @nameof(Common.Constants.AppRoutes.MyBalance)
@@ -60,8 +65,11 @@
     private decimal TotalExpenses { get; set; } = 0;
     private decimal TotalIncome { get; set; } = 0;
     private decimal NetIncome { get; set; } = 0;
+    private bool IsBusy { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        IsBusy = true;
         var result = await this.BalanceService!.GetMyBalanceAsync(
             CancellationToken.None);
         this.MyBalanceModel = result.AsQueryable();
@@ -70,5 +78,6 @@
         this.TotalIncome = this.MyBalanceModel
         .Where(p => p.TransactionType == "Credit").Sum(p => p.Amount);
         this.NetIncome = this.TotalIncome - this.TotalExpenses;
+        this.IsBusy = false;
     }
 }
