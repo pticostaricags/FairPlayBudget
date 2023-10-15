@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @attribute [Route(FairPlayBudget.Common.Constants.AppRoutes.MyExpenses)]
 @attribute [Authorize]
+@rendermode RenderMode.InteractiveServer
 <PageTitle>
     @nameof(Common.Constants.AppRoutes.MyExpenses)
 </PageTitle>
@@ -60,7 +61,8 @@
     {
         get
         {
-            int[] result = Enumerable.Range(this.SelectedYear - 20, 20).ToArray();
+            int items = 20;
+            int[] result = Enumerable.Range(DateTimeOffset.Now.Year - items, items+1).ToArray();
             return result;
         }
     }
