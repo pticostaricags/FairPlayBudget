@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FairPlayBudget.Common.Enums;
 
 namespace FairPlayBudget.Models.Expense
 {
@@ -18,6 +19,8 @@ namespace FairPlayBudget.Models.Expense
         public string? Description { get; set; }
 
         [Required]
-        public decimal? AmountInUsd { get; set; }
+        public decimal? Amount { get; set; }
+        [Required]
+        public Currency? Currency { get; set; }
     }
 }

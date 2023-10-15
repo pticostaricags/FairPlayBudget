@@ -21,7 +21,7 @@
                             InitialSortDirection="@SortDirection.Descending">
             </PropertyColumn>
             <PropertyColumn Property="@(p=>p.TransactionType)" Sortable="true"></PropertyColumn>
-            <PropertyColumn Property="@(p=>p.AmountInUsd)" Format="c" Sortable="true"></PropertyColumn>
+            <PropertyColumn Property="@(p=>p.Amount)" Format="c" Sortable="true"></PropertyColumn>
             <PropertyColumn Property="@(p=>p.Description)" Sortable="true"></PropertyColumn>
         </QuickGrid>
     </div>
@@ -66,9 +66,9 @@
             CancellationToken.None);
         this.MyBalanceModel = result.AsQueryable();
         this.TotalExpenses = this.MyBalanceModel
-        .Where(p => p.TransactionType == "Debit").Sum(p => p.AmountInUsd);
+        .Where(p => p.TransactionType == "Debit").Sum(p => p.Amount);
         this.TotalIncome = this.MyBalanceModel
-        .Where(p => p.TransactionType == "Credit").Sum(p => p.AmountInUsd);
+        .Where(p => p.TransactionType == "Credit").Sum(p => p.Amount);
         this.NetIncome = this.TotalIncome - this.TotalExpenses;
     }
 }

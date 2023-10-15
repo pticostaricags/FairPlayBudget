@@ -25,7 +25,8 @@ namespace FairPlayBudget.ServerSideServices
         {
             Income entity = new Income()
             {
-                AmountInUsd = createExpenseModel.AmountInUsd!.Value,
+                Amount = createExpenseModel.Amount!.Value,
+                CurrencyId = (int)createExpenseModel.Currency!.Value,
                 Description = createExpenseModel.Description,
                 IncomeDateTime = createExpenseModel.IncomeDateTime!.Value,
                 OwnerId = this.userProvider.GetCurrentUserId(),

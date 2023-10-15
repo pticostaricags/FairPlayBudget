@@ -1,4 +1,5 @@
-﻿using FairPlayBudget.DataAccess.Data;
+﻿using FairPlayBudget.Common.Enums;
+using FairPlayBudget.DataAccess.Data;
 using FairPlayBudget.Interfaces.Services;
 using FairPlayBudget.Models.Balance;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,8 @@ namespace FairPlayBudget.ServerSideServices
                 .Where(p => p.OwnerId == userId)
                 .Select(p => new MyBalanceModel() 
                 {
-                    AmountInUsd=p.AmountInUsd,
+                    Amount=p.Amount,
+                    Currency = (Currency)p.CurrencyId,
                     DateTime=p.DateTime,
                     Description=p.Description,
                     TransactionType=p.TransactionType

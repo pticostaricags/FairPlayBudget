@@ -28,4 +28,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="CurrencyId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="4c1c6306-e432-4aa0-9fa0-223ec67fc630" ChangeDateTime="10/15/2023 15:24:48">
+    <Property Name="ElementName" Value="[dbo].[Expense].[AmountInUSD]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Expense]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Amount" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2fc0a359-b7a5-42d1-81d8-219a5da5480b" ChangeDateTime="10/15/2023 15:24:58">
+    <Property Name="ElementName" Value="[dbo].[Income].[AmountInUSD]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Income]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="AmountIn" />
+  </Operation>
 </Operations>

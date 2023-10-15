@@ -15,8 +15,8 @@ public partial class VwBalance
     [StringLength(450)]
     public string OwnerId { get; set; }
 
-    [Column("AmountInUSD", TypeName = "money")]
-    public decimal AmountInUsd { get; set; }
+    [Column(TypeName = "money")]
+    public decimal Amount { get; set; }
 
     [StringLength(10)]
     public string TransactionType { get; set; }
@@ -26,4 +26,6 @@ public partial class VwBalance
     [Required]
     [StringLength(50)]
     public string Description { get; set; }
+
+    public int CurrencyId { get; set; }
 }

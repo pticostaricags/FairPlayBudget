@@ -5,12 +5,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FairPlayBudget.Common.Enums;
 
 namespace FairPlayBudget.Models.Balance
 {
     public class MyBalanceModel
     {
-        public decimal AmountInUsd { get; set; }
+        public decimal Amount { get; set; }
+        public Currency Currency { get; set; }
 
         [StringLength(10)]
         public string? TransactionType { get; set; }

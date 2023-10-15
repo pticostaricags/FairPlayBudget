@@ -27,7 +27,7 @@
                 @nameof(CreateTransactionModel.TransactionDateTime)
             </div>
             <div class="col">
-                @nameof(CreateTransactionModel.AmountInUsd)
+                @nameof(CreateTransactionModel.Amount)
             </div>
             <div class="col">
                 @nameof(CreateTransactionModel.Description)
@@ -54,7 +54,7 @@
                     <InputDate class="form-control" @bind-Value="@singleTransaction.TransactionDateTime"></InputDate>
                 </div>
                 <div class="col">
-                    <InputNumber class="form-control" @bind-Value="@singleTransaction.AmountInUsd"></InputNumber>
+                    <InputNumber class="form-control" @bind-Value="@singleTransaction.Amount"></InputNumber>
                 </div>
                 <div class="col">
                     <InputText class="form-control" @bind-Value="@singleTransaction.Description"></InputText>

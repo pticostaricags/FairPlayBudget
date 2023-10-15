@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FairPlayBudget.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace FairPlayBudget.Models.Income
         public string? Description { get; set; }
 
         [Required]
-        public decimal? AmountInUsd { get; set; }
+        public decimal? Amount { get; set; }
+        [Required]
+        public Currency? Currency { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FairPlayBudget.DataAccess.Data;
+﻿using FairPlayBudget.Common.Enums;
+using FairPlayBudget.DataAccess.Data;
 using FairPlayBudget.DataAccess.Models;
 using FairPlayBudget.Interfaces.Services;
 using FairPlayBudget.Models.Expense;
@@ -22,15 +23,16 @@ namespace FairPlayBudget.ServerSideServices
         {
             Expense entity = new Expense()
             {
-                AmountInUsd=createExpenseModel.AmountInUsd!.Value,
-                Description=createExpenseModel.Description,
-                ExpenseDateTime=createExpenseModel.ExpenseDateTime!.Value,
+                Amount = createExpenseModel.Amount!.Value,
+                Description = createExpenseModel.Description,
+                ExpenseDateTime = createExpenseModel.ExpenseDateTime!.Value,
                 OwnerId = this.userProvider.GetCurrentUserId(),
+                CurrencyId = (int)createExpenseModel.Currency!.Value,
             };
             await this.fairPlayBudgetDatabaseContext.Expense.AddAsync(entity,
-                cancellationToken:cancellationToken);
+                cancellationToken: cancellationToken);
             await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(
-                cancellationToken:cancellationToken);
+                cancellationToken: cancellationToken);
         }
 
         public async Task<MyExpenseModel[]> GetMyExpensesAsync(CancellationToken cancellationToken)
@@ -38,11 +40,12 @@ namespace FairPlayBudget.ServerSideServices
             var userId = this.userProvider.GetCurrentUserId();
             var result = await this.fairPlayBudgetDatabaseContext.Expense!
                 .Where(p => p.OwnerId == userId)
-                .Select(p=> new MyExpenseModel()
+                .Select(p => new MyExpenseModel()
                 {
-                    AmountInUsd = p.AmountInUsd,
-                    Description=p.Description,
-                    ExpenseDateTime=p.ExpenseDateTime,
+                    Amount = p.Amount,
+                    Currency = (Common.Enums.Currency)p.CurrencyId,
+                    Description = p.Description,
+                    ExpenseDateTime = p.ExpenseDateTime,
                 }).ToArrayAsync(cancellationToken: cancellationToken);
             return result;
         }
@@ -55,11 +58,12 @@ namespace FairPlayBudget.ServerSideServices
             var userId = this.userProvider.GetCurrentUserId();
             var result = await this.fairPlayBudgetDatabaseContext.Expense!
                 .Where(p => p.OwnerId == userId &&
-                p.ExpenseDateTime.Month == month && 
+                p.ExpenseDateTime.Month == month &&
                 p.ExpenseDateTime.Year == year)
                 .Select(p => new MyExpenseModel()
                 {
-                    AmountInUsd = p.AmountInUsd,
+                    Amount = p.Amount,
+                    Currency = (Common.Enums.Currency)p.CurrencyId,
                     Description = p.Description,
                     ExpenseDateTime = p.ExpenseDateTime,
                 }).ToArrayAsync(cancellationToken: cancellationToken);

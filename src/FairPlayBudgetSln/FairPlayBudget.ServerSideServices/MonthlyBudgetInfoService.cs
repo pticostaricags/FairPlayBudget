@@ -40,7 +40,7 @@ namespace FairPlayBudget.ServerSideServices
                         case Common.Enums.TransactionType.Debit:
                             entity.Expense.Add(new Expense()
                             {
-                                AmountInUsd = singleTransaction.AmountInUsd!.Value,
+                                Amount = singleTransaction.Amount!.Value,
                                 Description = singleTransaction.Description,
                                 ExpenseDateTime = singleTransaction.TransactionDateTime!.Value,
                                 OwnerId = userId,
@@ -50,7 +50,7 @@ namespace FairPlayBudget.ServerSideServices
                         case Common.Enums.TransactionType.Credit:
                             entity.Income.Add(new Income()
                             {
-                                AmountInUsd = singleTransaction.AmountInUsd!.Value,
+                                Amount = singleTransaction.Amount!.Value,
                                 Description = singleTransaction.Description,
                                 IncomeDateTime = singleTransaction.TransactionDateTime!.Value,
                                 OwnerId = userId,
@@ -103,13 +103,13 @@ namespace FairPlayBudget.ServerSideServices
                                 };
                                 if (singleRecord.debito != null)
                                 {
-                                    transaction.AmountInUsd = singleRecord.debito;
+                                    transaction.Amount = singleRecord.debito;
                                     transaction.TransactionType = Common.Enums.TransactionType.Debit;
                                 }
                                 else
                                 if (singleRecord.credito != null)
                                 {
-                                    transaction.AmountInUsd = singleRecord.credito;
+                                    transaction.Amount = singleRecord.credito;
                                     transaction.TransactionType = Common.Enums.TransactionType.Credit;
                                 }
                                 else

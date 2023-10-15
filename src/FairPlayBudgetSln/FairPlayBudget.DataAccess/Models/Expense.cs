@@ -19,8 +19,8 @@ public partial class Expense
     [StringLength(50)]
     public string Description { get; set; }
 
-    [Column("AmountInUSD", TypeName = "money")]
-    public decimal AmountInUsd { get; set; }
+    [Column(TypeName = "money")]
+    public decimal Amount { get; set; }
 
     [Required]
     [StringLength(450)]
