@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Route(Common.Constants.AppRoutes.MyBalance)]
 @attribute [Authorize]
+@rendermode RenderMode.InteractiveServer
 <PageTitle>
     @nameof(Common.Constants.AppRoutes.MyBalance)
 </PageTitle>
@@ -13,12 +14,19 @@
 
 @if (this.MyBalanceModel != null)
 {
-    <QuickGrid Items="@this.MyBalanceModel">
-        <PropertyColumn Property="@(p=>p.DateTime)"></PropertyColumn>
-        <PropertyColumn Property="@(p=>p.TransactionType)"></PropertyColumn>
-        <PropertyColumn Property="@(p=>p.AmountInUsd)" Format="c"></PropertyColumn>
-        <PropertyColumn Property="@(p=>p.Description)"></PropertyColumn>
-    </QuickGrid>
+    <div class="grid-container" style="max-width:800px; overflow:auto;">
+        <QuickGrid Items="@this.MyBalanceModel" Pagination="@this.paginationState">
+            <PropertyColumn Property="@(p=>p.DateTime)" Sortable="true"
+                            IsDefaultSortColumn="true"
+                            InitialSortDirection="@SortDirection.Descending">
+            </PropertyColumn>
+            <PropertyColumn Property="@(p=>p.TransactionType)" Sortable="true"></PropertyColumn>
+            <PropertyColumn Property="@(p=>p.AmountInUsd)" Format="c" Sortable="true"></PropertyColumn>
+            <PropertyColumn Property="@(p=>p.Description)" Sortable="true"></PropertyColumn>
+        </QuickGrid>
+    </div>
+
+    <Paginator State="@this.paginationState"></Paginator>
     <p>
         Total Expenses: @TotalExpenses.ToString("c")
     </p>
@@ -45,6 +53,10 @@
     [Inject]
     private IBalanceService? BalanceService { get; set; }
     private IQueryable<MyBalanceModel>? MyBalanceModel { get; set; }
+    private PaginationState paginationState = new PaginationState()
+        {
+            ItemsPerPage = 10
+        };
     private decimal TotalExpenses { get; set; } = 0;
     private decimal TotalIncome { get; set; } = 0;
     private decimal NetIncome { get; set; } = 0;

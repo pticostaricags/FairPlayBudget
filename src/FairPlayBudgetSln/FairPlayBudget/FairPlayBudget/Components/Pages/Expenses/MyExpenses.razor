@@ -44,17 +44,27 @@
 
 @if (this.MyExpensesModel != null)
 {
-    <QuickGrid Items="@this.MyExpensesModel">
-        <PropertyColumn Property="@( p=>p.ExpenseDateTime)" Sortable="true"></PropertyColumn>
+    <QuickGrid Items="@this.MyExpensesModel" Pagination="@this.paginationState">
+        <PropertyColumn Property="@( p=>p.ExpenseDateTime)" 
+            Sortable="true"
+            IsDefaultSortColumn="true"
+            InitialSortDirection="@SortDirection.Descending"
+        ></PropertyColumn>
         <PropertyColumn Property="@( p=>p.AmountInUsd)" Format="c" Sortable="true"></PropertyColumn>
         <PropertyColumn Property="@( p=>p.Description)" Sortable="true"></PropertyColumn>
     </QuickGrid>
+
+    <Paginator State="@this.paginationState"></Paginator>
 }
 
 @code {
     [Inject]
     private IExpenseService? ExpenseService { get; set; }
     private IQueryable<MyExpenseModel>? MyExpensesModel { get; set; }
+    PaginationState paginationState = new PaginationState()
+        {
+            ItemsPerPage = 10
+        };
     private int SelectedMonth { get; set; } = DateTimeOffset.Now.Month;
     private int SelectedYear { get; set; } = DateTimeOffset.Now.Year;
     private int[] SelectableYears
@@ -68,13 +78,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        await this.GetDataAsync();
-    }
-
-    private async Task GetDataAsync()
-    {
-        this.MyExpensesModel = (await this.ExpenseService!.GetMyExpensesAsync(
-        CancellationToken.None)).AsQueryable();
+        await this.LoadDataAsync();
     }
 
     private async Task OnSelectedMonthChanged(int selectedMonth)
