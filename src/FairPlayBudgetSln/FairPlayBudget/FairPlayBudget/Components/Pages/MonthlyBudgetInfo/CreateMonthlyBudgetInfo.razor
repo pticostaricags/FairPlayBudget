@@ -56,6 +56,17 @@
                 <div class="col">
                     <InputText class="form-control" @bind-Value="@singleTransaction.Description"></InputText>
                 </div>
+                <div class="col">
+                    <InputSelect class="form-select" 
+                    ValueExpression="@( () => singleTransaction.Currency)"
+                    Value="@singleTransaction.Currency"
+                    ValueChanged="@( (Currency? selectedValue) => singleTransaction.Currency = selectedValue)"
+                    >
+                        <option value="">Select a Currency</option>
+                        <option value="@Currency.USD">USD</option>
+                        <option value="@Currency.CRC">CRC</option>
+                    </InputSelect>
+                </div>
             </div>
         }
     }

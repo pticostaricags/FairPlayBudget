@@ -44,6 +44,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Currency]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Expense]",
          "ObjectType": 0
       },

@@ -31,5 +31,7 @@ namespace FairPlayBudget.Models.MonthlyBudgetInfo
         public decimal? AmountInUsd { get; set; }
         [Required]
         public TransactionType? TransactionType { get; set; }
+        [Required]
+        public Currency? Currency { get; set; }
     }
 }
