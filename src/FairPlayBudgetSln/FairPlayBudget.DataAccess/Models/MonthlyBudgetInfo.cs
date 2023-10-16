@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FairPlayBudget.DataAccess.Models;
 
+[Index("Description", Name = "UI_MonthlyBudgetInfo_Description", IsUnique = true)]
 public partial class MonthlyBudgetInfo
 {
     [Key]
