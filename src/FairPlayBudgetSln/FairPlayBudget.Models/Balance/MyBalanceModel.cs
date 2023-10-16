@@ -20,7 +20,7 @@ namespace FairPlayBudget.Models.Balance
         public DateTimeOffset DateTime { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(500)]
         public string? Description { get; set; }
         [Required]
         public string? MonthlyBudgetDescription { get; set; }

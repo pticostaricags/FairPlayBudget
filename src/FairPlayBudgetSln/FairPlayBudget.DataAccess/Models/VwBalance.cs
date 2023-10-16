@@ -24,7 +24,7 @@ public partial class VwBalance
     public DateTimeOffset DateTime { get; set; }
 
     [Required]
-    [StringLength(50)]
+    [StringLength(500)]
     public string Description { get; set; }
 
     public int CurrencyId { get; set; }

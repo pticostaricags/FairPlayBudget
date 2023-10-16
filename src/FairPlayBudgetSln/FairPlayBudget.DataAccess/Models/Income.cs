@@ -16,7 +16,7 @@ public partial class Income
     public DateTimeOffset IncomeDateTime { get; set; }
 
     [Required]
-    [StringLength(50)]
+    [StringLength(500)]
     public string Description { get; set; }
 
     [Column(TypeName = "money")]

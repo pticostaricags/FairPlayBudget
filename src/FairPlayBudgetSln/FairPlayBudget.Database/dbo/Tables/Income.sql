@@ -2,7 +2,7 @@
 (
 	[IncomeId] BIGINT NOT NULL CONSTRAINT PK_Income PRIMARY KEY IDENTITY,
     [IncomeDateTime] DATETIMEOFFSET NOT NULL, 
-    [Description] NVARCHAR(50) NOT NULL, 
+    [Description] NVARCHAR(500) NOT NULL, 
     [Amount] MONEY NOT NULL, 
     [OwnerId] NVARCHAR(450) NOT NULL, 
     [MonthlyBudgetInfoId] BIGINT NOT NULL, 

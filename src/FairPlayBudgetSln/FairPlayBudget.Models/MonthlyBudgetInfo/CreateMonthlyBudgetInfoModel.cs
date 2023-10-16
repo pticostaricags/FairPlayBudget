@@ -24,7 +24,7 @@ namespace FairPlayBudget.Models.MonthlyBudgetInfo
         public DateTimeOffset? TransactionDateTime { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(500)]
         public string? Description { get; set; }
 
         [Required]
