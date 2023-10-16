@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FairPlayBudget.Models.MonthlyBudgetInfo
 {
-    public class ImportMonthlyBudgetInfoModel
+    public class ImportTransactionsMonthlyBudgetInfoModel
     {
         public string? oficina { get; set; }
         public string? fechaMovimiento { get; set; }

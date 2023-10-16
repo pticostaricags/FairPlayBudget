@@ -1,9 +1,11 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using FairPlayBudget.Common.Enums;
 using FairPlayBudget.DataAccess.Data;
 using FairPlayBudget.DataAccess.Models;
 using FairPlayBudget.Interfaces.Services;
 using FairPlayBudget.Models.MonthlyBudgetInfo;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -66,7 +68,7 @@ namespace FairPlayBudget.ServerSideServices
             }
         }
 
-        public async Task<CreateMonthlyBudgetInfoModel> ImportFromFileStreamAsync(Stream stream, CancellationToken cancellationToken)
+        public async Task<CreateMonthlyBudgetInfoModel> ImportFromTransactionsFileStreamAsync(Stream stream, CancellationToken cancellationToken)
         {
             try
             {
@@ -85,7 +87,7 @@ namespace FairPlayBudget.ServerSideServices
                     {
                         using (CsvReader csvReader = new CsvReader(csvParser))
                         {
-                            var records = csvReader.GetRecordsAsync<ImportMonthlyBudgetInfoModel>(
+                            var records = csvReader.GetRecordsAsync<ImportTransactionsMonthlyBudgetInfoModel>(
                                                         cancellationToken: cancellationToken)
                                                         .ConfigureAwait(continueOnCapturedContext: false);
                             await foreach (var singleRecord in records)
@@ -127,6 +129,118 @@ namespace FairPlayBudget.ServerSideServices
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task<CreateMonthlyBudgetInfoModel> ImportFromCreditCardFileStreamAsync(Stream stream, CancellationToken cancellationToken)
+        {
+            try
+            {
+                CreateMonthlyBudgetInfoModel result = new CreateMonthlyBudgetInfoModel()
+                {
+                    Transactions = new List<CreateTransactionModel>()
+                };
+                using (StreamReader streamReader = new StreamReader(stream))
+                {
+                    using (CsvParser csvParser = new CsvParser(streamReader, configuration:
+                        new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+                        {
+                            Delimiter = ",",
+                            ShouldQuote = ((ShouldQuoteArgs args) => { return false; })
+                        }))
+                    {
+                        using (CsvReader csvReader = new CsvReader(csvParser))
+                        {
+                            var records = csvReader.GetRecordsAsync<ImportCreditCardMonthlyBudgetInfoModel>(
+                                                        cancellationToken: cancellationToken)
+                                                        .ConfigureAwait(continueOnCapturedContext: false);
+                            await foreach (var singleRecord in records)
+                            {
+                                if (String.IsNullOrWhiteSpace(singleRecord.Fecha))
+                                    continue;
+                                try
+                                {
+                                    DateTime dt = DateTime
+                                        .ParseExact(singleRecord.Fecha!, "d/M/yyyy",
+                                        CultureInfo.InvariantCulture);
+
+                                    CreateTransactionModel transaction = new CreateTransactionModel()
+                                    {
+                                        Description = singleRecord.Establecimiento,
+                                        TransactionDateTime = dt,
+                                    };
+                                    if (singleRecord.Monto != null)
+                                    {
+                                        if (singleRecord.Monto.Value > 0)
+                                        {
+                                            transaction.Amount = singleRecord.Monto;
+                                            transaction.TransactionType = Common.Enums.TransactionType.Debit;
+                                        }
+                                        else
+                                        {
+                                            transaction.Amount = singleRecord.Monto;
+                                            transaction.TransactionType = Common.Enums.TransactionType.Credit;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        throw new Exception("There are rows with no value for either debit nor credit");
+                                    }
+                                    switch (singleRecord.Moneda)
+                                    {
+                                        case "Colones":
+                                            transaction.Currency = Common.Enums.Currency.CRC;
+                                            break;
+                                        case "Dólares":
+                                            transaction.Currency = Common.Enums.Currency.USD;
+                                            break;
+                                    }
+                                    result.Transactions!.Add(transaction);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception(ex.Message);
+                                }
+                            }
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CreateMonthlyBudgetInfoModel> LoadMonthlyBudgetInfoAsync(int monthlyBudgetInfoId, CancellationToken cancellationToken)
+        {
+            var entity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+                .Include(p => p.Expense)
+                .Include(p => p.Income)
+                .Where(p => p.MonthlyBudgetInfoId == monthlyBudgetInfoId)
+                .SingleAsync(cancellationToken:cancellationToken);
+            CreateMonthlyBudgetInfoModel result = new CreateMonthlyBudgetInfoModel();
+            result.Description = entity.Description;
+            result.Transactions =
+                    entity.Income.Select(p => new CreateTransactionModel()
+                    {
+                        Amount = p.Amount,
+                        Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
+                        Description = p.Description,
+                        TransactionDateTime = p.IncomeDateTime,
+                        TransactionType = TransactionType.Credit
+                    })
+                    .Union(entity.Expense.Select(p => new CreateTransactionModel()
+                    {
+                        Amount = p.Amount,
+                        Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
+                        Description = p.Description,
+                        TransactionDateTime = p.ExpenseDateTime,
+                        TransactionType = TransactionType.Debit
+                    }))
+                    .OrderByDescending(p => p.TransactionDateTime).ToList();
+            return result;
         }
     }
 }

@@ -3,15 +3,14 @@
 @using FairPlayBudget.Models.MonthlyBudgetInfo
 @using Microsoft.AspNetCore.Authorization
 @attribute [Route(Common.Constants.AppRoutes.CreateMonthlyBudgetInfo)]
+@attribute [Route($"{Common.Constants.AppRoutes.CreateMonthlyBudgetInfo}/{{MonthlyBudgetInfoId:int}}")]
 @attribute [Authorize]
 @rendermode RenderMode.InteractiveServer
 
-<FairPlayBudget.Components.Spinners.LoadingIndicator
-ShowSpinners="@this.IsBusy"
-></FairPlayBudget.Components.Spinners.LoadingIndicator>
+<FairPlayBudget.Components.Spinners.LoadingIndicator ShowSpinners="@this.IsBusy"></FairPlayBudget.Components.Spinners.LoadingIndicator>
 <h3>CreateMonthlyBudgetInfo</h3>
 <EditForm FormName="frmMonthlyBudgetInfo" Model="@this.createMonthlyBudgetInfoModel"
-          OnValidSubmit="OnValidSubmitAsync">
+          OnValidSubmit="OnValidSubmitAsync" Enhance>
     <div class="mb-3">
         <ObjectGraphDataAnnotationsValidator />
     </div>
@@ -95,9 +94,8 @@ ShowSpinners="@this.IsBusy"
 Import From File:
 <InputFile OnChange="OnFileSelected" accept=".csv"></InputFile>
 Override Currency:
-<InputSelect 
-    class="form-select"
-    ValueExpression="@( () => this.SelectedCurrencyForOverride)"
+<InputSelect class="form-select"
+             ValueExpression="@( () => this.SelectedCurrencyForOverride)"
              Value="@this.SelectedCurrencyForOverride"
              ValueChanged="( (Currency selectedValue) => OnOverrideCurrencyChanged(selectedValue) )">
     @foreach (var singleCurrency in Enum.GetValues<Currency>())
@@ -107,6 +105,8 @@ Override Currency:
 </InputSelect>
 <button class="btn btn-secondary" type="button" @onclick="OnOverrideCurrencyButtonClicked">Set Currency</button>
 @code {
+    [Parameter]
+    public int? MonthlyBudgetInfoId { get; set; }
     [Inject]
     private IMonthlyBudgetInfoService? MonthlyBudgetInfoService { get; set; }
     [Inject]
@@ -119,6 +119,16 @@ Override Currency:
         };
     private Currency SelectedCurrencyForOverride = Currency.USD;
     private bool IsBusy { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (this.MonthlyBudgetInfoId != null)
+        {
+            this.createMonthlyBudgetInfoModel = await this.MonthlyBudgetInfoService!
+            .LoadMonthlyBudgetInfoAsync(this.MonthlyBudgetInfoId!.Value,
+            CancellationToken.None);
+        }
+    }
 
     private async Task OnValidSubmitAsync()
     {
@@ -145,7 +155,7 @@ Override Currency:
             var stream = inputFileChangeEventArgs.File.OpenReadStream(maxAllowedSizeInKb,
             cancellationToken: CancellationToken.None);
             this.createMonthlyBudgetInfoModel = await this.MonthlyBudgetInfoService!
-            .ImportFromFileStreamAsync(stream, cancellationToken: CancellationToken.None);
+            .ImportFromTransactionsFileStreamAsync(stream, cancellationToken: CancellationToken.None);
         }
         IsBusy = false;
     }

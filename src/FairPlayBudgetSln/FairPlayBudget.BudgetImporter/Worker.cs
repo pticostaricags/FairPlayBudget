@@ -1,6 +1,7 @@
 using FairPlayBudget.BudgetImporter.Configuration;
 using FairPlayBudget.Common.Enums;
 using FairPlayBudget.DataAccess.Data;
+using FairPlayBudget.Models.MonthlyBudgetInfo;
 using FairPlayBudget.ServerSideServices;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace FairPlayBudget.BudgetImporter
         private readonly ImportConfiguration _importConfiguration;
         private readonly MonthlyBudgetInfoService _monthlyBudgetInfoService;
 
-        public Worker(ILogger<Worker> logger, 
+        public Worker(ILogger<Worker> logger,
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext,
             ImportConfiguration importConfiguration,
             FairPlayBudget.ServerSideServices.MonthlyBudgetInfoService monthlyBudgetInfoService
@@ -43,13 +44,24 @@ namespace FairPlayBudget.BudgetImporter
                                 {
                                     using (Stream streamReader = File.Open(importFile, FileMode.Open))
                                     {
-                                        var importedData =
-                                            await this._monthlyBudgetInfoService
-                                            .ImportFromFileStreamAsync(streamReader, stoppingToken);
-                                        importedData.Transactions!.AsParallel().ForAll(p => 
+                                        CreateMonthlyBudgetInfoModel? importedData = null;
+                                        switch (currencyCode)
                                         {
-                                            p.Currency = Enum.Parse<Currency>(currencyCode!);
-                                        });
+                                            case "Credit":
+                                                importedData =
+                                            await this._monthlyBudgetInfoService
+                                            .ImportFromCreditCardFileStreamAsync(streamReader, stoppingToken);
+                                                break;
+                                            default:
+                                                importedData =
+                                            await this._monthlyBudgetInfoService
+                                            .ImportFromTransactionsFileStreamAsync(streamReader, stoppingToken);
+                                                importedData!.Transactions!.AsParallel().ForAll(p =>
+                                                {
+                                                    p.Currency = Enum.Parse<Currency>(currencyCode!);
+                                                });
+                                                break;
+                                        }
                                         importedData.Description = Path.GetFileName(importFile);
                                         await this._monthlyBudgetInfoService!
                                             .CreateMonthlyBudgetInfoAsync(importedData, stoppingToken);
@@ -59,6 +71,7 @@ namespace FairPlayBudget.BudgetImporter
                             }
                         }
                     }
+                    _logger.LogInformation("Worker finished at: {time}", DateTimeOffset.Now);
                 }
                 await Task.Delay(1000, stoppingToken);
             }
