@@ -12,7 +12,7 @@ MBI.[Description] AS MonthlyBudgetDescription
 FROM [Expense] E
 LEFT JOIN MonthlyBudgetInfo MBI ON MBI.MonthlyBudgetInfoId = E.MonthlyBudgetInfoId
 INNER JOIN Currency C ON C.CurrencyId = E.CurrencyId
-UNION
+UNION ALL
 SELECT 
 I.OwnerId AS OwnerId, 
 I.Amount AS Amount,
