@@ -68,6 +68,57 @@ namespace FairPlayBudget.ServerSideServices
             }
         }
 
+        public async Task UpdateMonthlyBudgetInfoAsync(int monthlyBudgetInfoModelId, CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel, CancellationToken cancellationToken)
+        {
+            var userId = this.userProvider.GetCurrentUserId();
+            var monthlyInfoEntity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+                .Include(p=>p.Expense)
+                .Include(p=>p.Income)
+                .SingleOrDefaultAsync(p => p.MonthlyBudgetInfoId == monthlyBudgetInfoModelId, cancellationToken);
+            if (monthlyInfoEntity != null)
+            {
+                this.fairPlayBudgetDatabaseContext.Expense.RemoveRange(monthlyInfoEntity.Expense);
+                this.fairPlayBudgetDatabaseContext.Income.RemoveRange(monthlyInfoEntity.Income);
+                this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.Remove(monthlyInfoEntity);
+                await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(cancellationToken:cancellationToken);
+            }
+            MonthlyBudgetInfo entity = new MonthlyBudgetInfo();
+            entity.Description = createMonthlyBudgetInfoModel.Description;
+            if (createMonthlyBudgetInfoModel.Transactions?.Count > 0)
+            {
+                foreach (var singleTransaction in createMonthlyBudgetInfoModel.Transactions)
+                {
+                    switch (singleTransaction.TransactionType)
+                    {
+                        case Common.Enums.TransactionType.Debit:
+                            entity.Expense.Add(new Expense()
+                            {
+                                Amount = singleTransaction.Amount!.Value,
+                                Description = singleTransaction.Description,
+                                ExpenseDateTime = singleTransaction.TransactionDateTime!.Value,
+                                OwnerId = userId,
+                                CurrencyId = (int)singleTransaction.Currency!.Value
+                            });
+                            break;
+                        case Common.Enums.TransactionType.Credit:
+                            entity.Income.Add(new Income()
+                            {
+                                Amount = singleTransaction.Amount!.Value,
+                                Description = singleTransaction.Description,
+                                IncomeDateTime = singleTransaction.TransactionDateTime!.Value,
+                                OwnerId = userId,
+                                CurrencyId = (int)singleTransaction.Currency!.Value
+                            });
+                            break;
+                    };
+                }
+                await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+                    .AddAsync(entity, cancellationToken: cancellationToken);
+            }
+            await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(
+                    cancellationToken: cancellationToken);
+        }
+
         public async Task<CreateMonthlyBudgetInfoModel> ImportFromTransactionsFileStreamAsync(Stream stream, CancellationToken cancellationToken)
         {
             try

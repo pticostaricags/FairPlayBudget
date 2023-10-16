@@ -133,9 +133,18 @@ Override Currency:
     private async Task OnValidSubmitAsync()
     {
         IsBusy = true;
-        await this.MonthlyBudgetInfoService!
-        .CreateMonthlyBudgetInfoAsync(this.createMonthlyBudgetInfoModel,
-        CancellationToken.None);
+        if (this.MonthlyBudgetInfoId == null)
+        {
+            await this.MonthlyBudgetInfoService!
+            .CreateMonthlyBudgetInfoAsync(this.createMonthlyBudgetInfoModel,
+            CancellationToken.None);
+        }
+        else
+        {
+            await this.MonthlyBudgetInfoService!
+            .UpdateMonthlyBudgetInfoAsync(this.MonthlyBudgetInfoId.Value,
+            this.createMonthlyBudgetInfoModel, CancellationToken.None);
+        }
         IsBusy = false;
         this.NavigationManager!.NavigateTo(Common.Constants.AppRoutes.MyBalance);
     }
