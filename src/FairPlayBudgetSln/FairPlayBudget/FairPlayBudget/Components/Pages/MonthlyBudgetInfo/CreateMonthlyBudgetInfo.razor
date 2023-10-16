@@ -55,12 +55,15 @@ ShowSpinners="@this.IsBusy"
                 </div>
                 <div class="col">
                     <InputDate class="form-control" @bind-Value="@singleTransaction.TransactionDateTime"></InputDate>
+                    <ValidationMessage For="@( () => singleTransaction.TransactionDateTime)"></ValidationMessage>
                 </div>
                 <div class="col">
                     <InputNumber class="form-control" @bind-Value="@singleTransaction.Amount"></InputNumber>
+                    <ValidationMessage For="@( () => singleTransaction.Amount)"></ValidationMessage>
                 </div>
                 <div class="col">
                     <InputText class="form-control" @bind-Value="@singleTransaction.Description"></InputText>
+                    <ValidationMessage For="@( () => singleTransaction.Description)"></ValidationMessage>
                 </div>
                 <div class="col">
                     <InputSelect class="form-select"
@@ -73,6 +76,7 @@ ShowSpinners="@this.IsBusy"
                             <option value="@singleCurrency">@singleCurrency.ToString()</option>
                         }
                     </InputSelect>
+                    <ValidationMessage For="@( () => singleTransaction.Currency)"></ValidationMessage>
                 </div>
             </div>
         }
