@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.Interfaces",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.BudgetImporter", "FairPlayBudget.BudgetImporter\FairPlayBudget.BudgetImporter.csproj", "{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.AutomatedTests", "FairPlayBudget.AutomatedTests\FairPlayBudget.AutomatedTests.csproj", "{B5536152-2EE7-4212-8F73-EF407B807CD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5536152-2EE7-4212-8F73-EF407B807CD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5536152-2EE7-4212-8F73-EF407B807CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5536152-2EE7-4212-8F73-EF407B807CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5536152-2EE7-4212-8F73-EF407B807CD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
