@@ -1,15 +1,33 @@
 using FairPlayBudget.DataAccess.Models;
 using FairPlayBudget.Interfaces.Services;
+using System.Diagnostics;
 
 namespace FairPlayBudget.AutomatedTests.ServerSideServices
 {
     [TestClass]
     public class BalanceServiceTests : ServerSideServicesTestBase
     {
+        [ClassInitialize]
+        public static async Task ClassInitialize(TestContext testContext)
+        {
+            await Task.Yield();
+            await ServerSideServicesTestBase._msSqlContainer.StartAsync();
+        }
+
+        [ClassCleanup()]
+        public static async Task ClassCleanup()
+        {
+            if (ServerSideServicesTestBase._msSqlContainer.State == DotNet.Testcontainers.Containers.TestcontainersStates.Running)
+            {
+                await ServerSideServicesTestBase._msSqlContainer.StopAsync();
+            }
+        }
+
         [TestMethod]
         public async Task Test_GetBudgetNamesAsync()
         {
             var ctx = base.GetFairPlayBudgetDatabaseContext();
+            await ctx.Database.EnsureCreatedAsync();
             AspNetUsers userEntity = new AspNetUsers()
             {
                 Id = Guid.NewGuid().ToString(),

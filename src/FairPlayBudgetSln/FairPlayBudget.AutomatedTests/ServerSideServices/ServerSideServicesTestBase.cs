@@ -8,19 +8,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Testcontainers.MsSql;
 
 namespace FairPlayBudget.AutomatedTests.ServerSideServices
 {
     public abstract class ServerSideServicesTestBase
     {
-        protected const string DefaultConnectionString = "Data Source=(local);Initial Catalog=FairPlayBudget;Integrated Security=True;Trust Server Certificate=True";
         public static string? CurrentUserId { get; protected set; }
-
+        public static readonly MsSqlContainer _msSqlContainer
+        = new MsSqlBuilder().Build();
         protected FairPlayBudgetDatabaseContext GetFairPlayBudgetDatabaseContext()
         {
             DbContextOptionsBuilder<FairPlayBudgetDatabaseContext> dbContextOptionsBuilder =
                 new DbContextOptionsBuilder<FairPlayBudgetDatabaseContext>();
-            dbContextOptionsBuilder.UseSqlServer(DefaultConnectionString,
+            dbContextOptionsBuilder.UseSqlServer(_msSqlContainer.GetConnectionString(),
                 sqlServerOptionsAction =>
                 {
                     sqlServerOptionsAction.EnableRetryOnFailure(
