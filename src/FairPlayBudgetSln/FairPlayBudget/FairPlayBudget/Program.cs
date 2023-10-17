@@ -86,8 +86,6 @@ app.Run();
 static void AddServerSideServices(WebApplicationBuilder builder)
 {
     builder.Services.AddSingleton<IUserProviderService, UserProviderService>();
-    builder.Services.AddTransient<IExpenseService, ExpenseService>();
-    builder.Services.AddTransient<IIncomeService, IncomeService>();
     builder.Services.AddTransient<IBalanceService, BalanceService>();
     builder.Services.AddTransient<IMonthlyBudgetInfoService, MonthlyBudgetInfoService>();
 }
