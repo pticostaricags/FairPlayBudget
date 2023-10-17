@@ -10,7 +10,6 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [ClassInitialize]
         public static async Task ClassInitialize(TestContext testContext)
         {
-            await Task.Yield();
             await ServerSideServicesTestBase._msSqlContainer.StartAsync();
         }
 
