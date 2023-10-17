@@ -33,6 +33,7 @@ namespace FairPlayBudget.ServerSideServices
             var userId = this.userProvider.GetCurrentUserId();
             MonthlyBudgetInfo entity = new MonthlyBudgetInfo();
             entity.Description = createMonthlyBudgetInfoModel.Description;
+            entity.OwnerId = userId;
             if (createMonthlyBudgetInfoModel.Transactions?.Count > 0)
             {
                 foreach (var singleTransaction in createMonthlyBudgetInfoModel.Transactions)
@@ -84,6 +85,7 @@ namespace FairPlayBudget.ServerSideServices
             }
             MonthlyBudgetInfo entity = new MonthlyBudgetInfo();
             entity.Description = createMonthlyBudgetInfoModel.Description;
+            entity.OwnerId = userId;
             if (createMonthlyBudgetInfoModel.Transactions?.Count > 0)
             {
                 foreach (var singleTransaction in createMonthlyBudgetInfoModel.Transactions)
@@ -291,6 +293,20 @@ namespace FairPlayBudget.ServerSideServices
                         TransactionType = TransactionType.Debit
                     }))
                     .OrderByDescending(p => p.TransactionDateTime).ToList();
+            return result;
+        }
+
+        public async Task<MonthlyBudgetInfoModel[]?> GetMyMonthlyBudgetInfoListAsync(CancellationToken cancellationToken)
+        {
+            var userId = this.userProvider.GetCurrentUserId();
+            var result = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.AsNoTracking()
+                .Where(p => p.OwnerId == userId)
+                .Select(p=> new MonthlyBudgetInfoModel()
+                {
+                    MonthlyBudgetInfoId = p.MonthlyBudgetInfoId,
+                    Description = p.Description
+                })
+                .ToArrayAsync(cancellationToken: cancellationToken);
             return result;
         }
     }

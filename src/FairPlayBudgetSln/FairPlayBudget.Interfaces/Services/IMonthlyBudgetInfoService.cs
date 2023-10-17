@@ -13,6 +13,8 @@ namespace FairPlayBudget.Interfaces.Services
             CancellationToken cancellationToken);
         Task UpdateMonthlyBudgetInfoAsync(int monthlyBudgetInfoModelId, CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel,
             CancellationToken cancellationToken);
+
+        Task<MonthlyBudgetInfoModel[]?> GetMyMonthlyBudgetInfoListAsync(CancellationToken cancellationToken);
         Task<CreateMonthlyBudgetInfoModel> LoadMonthlyBudgetInfoAsync(
             int monthlyBudgetInfoId,
             CancellationToken cancellationToken);

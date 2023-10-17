@@ -18,9 +18,17 @@ public partial class MonthlyBudgetInfo
     [StringLength(150)]
     public string Description { get; set; }
 
+    [Required]
+    [StringLength(450)]
+    public string OwnerId { get; set; }
+
     [InverseProperty("MonthlyBudgetInfo")]
     public virtual ICollection<Expense> Expense { get; set; } = new List<Expense>();
 
     [InverseProperty("MonthlyBudgetInfo")]
     public virtual ICollection<Income> Income { get; set; } = new List<Income>();
+
+    [ForeignKey("OwnerId")]
+    [InverseProperty("MonthlyBudgetInfo")]
+    public virtual AspNetUsers Owner { get; set; }
 }

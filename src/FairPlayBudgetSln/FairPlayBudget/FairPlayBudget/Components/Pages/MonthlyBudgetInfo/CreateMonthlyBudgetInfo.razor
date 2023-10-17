@@ -8,7 +8,13 @@
 @rendermode RenderMode.InteractiveServer
 
 <FairPlayBudget.Components.Spinners.LoadingIndicator ShowSpinners="@this.IsBusy"></FairPlayBudget.Components.Spinners.LoadingIndicator>
-<h3>CreateMonthlyBudgetInfo</h3>
+<PageTitle>
+    @nameof(Common.Constants.AppRoutes.CreateMonthlyBudgetInfo)
+</PageTitle>
+
+<h3>
+    @nameof(Common.Constants.AppRoutes.CreateMonthlyBudgetInfo)
+</h3>
 <EditForm FormName="frmMonthlyBudgetInfo" Model="@this.createMonthlyBudgetInfoModel"
           OnValidSubmit="OnValidSubmitAsync" Enhance>
     <div class="mb-3">

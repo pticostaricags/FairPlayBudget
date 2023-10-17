@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.ServerSideSe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.Interfaces", "FairPlayBudget.Interfaces\FairPlayBudget.Interfaces.csproj", "{03689DC2-E7FB-487A-A3D6-2653AA33CDA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FairPlayBudget.BudgetImporter", "FairPlayBudget.BudgetImporter\FairPlayBudget.BudgetImporter.csproj", "{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FairPlayBudget.BudgetImporter", "FairPlayBudget.BudgetImporter\FairPlayBudget.BudgetImporter.csproj", "{75C30D44-6193-4C6E-BFE6-E1722DA9B8A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

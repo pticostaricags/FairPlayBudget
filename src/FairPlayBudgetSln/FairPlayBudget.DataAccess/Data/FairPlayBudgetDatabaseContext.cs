@@ -93,6 +93,13 @@ public partial class FairPlayBudgetDatabaseContext : DbContext
                 .HasConstraintName("FK_Income_AspNetUsers");
         });
 
+        modelBuilder.Entity<MonthlyBudgetInfo>(entity =>
+        {
+            entity.HasOne(d => d.Owner).WithMany(p => p.MonthlyBudgetInfo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MonthlyBudgetInfo_AspNetUsers");
+        });
+
         modelBuilder.Entity<VwBalance>(entity =>
         {
             entity.ToView("vwBalance");

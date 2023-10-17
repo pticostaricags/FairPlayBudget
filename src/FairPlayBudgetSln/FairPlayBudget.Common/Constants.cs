@@ -12,6 +12,7 @@
             public const string MyBalance = $"Balance/{nameof(MyBalance)}";
 
             public const string CreateMonthlyBudgetInfo = $"/MonthlyBudgetInfo/{nameof(CreateMonthlyBudgetInfo)}";
+            public const string MyMonthlyBudgets = $"/MonthlyBudgetInfo/{nameof(MyMonthlyBudgets)}";
         }
     }
 }

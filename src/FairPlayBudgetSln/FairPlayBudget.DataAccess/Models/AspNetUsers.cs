@@ -61,6 +61,9 @@ public partial class AspNetUsers
     [InverseProperty("Owner")]
     public virtual ICollection<Income> Income { get; set; } = new List<Income>();
 
+    [InverseProperty("Owner")]
+    public virtual ICollection<MonthlyBudgetInfo> MonthlyBudgetInfo { get; set; } = new List<MonthlyBudgetInfo>();
+
     [ForeignKey("UserId")]
     [InverseProperty("User")]
     public virtual ICollection<AspNetRoles> Role { get; set; } = new List<AspNetRoles>();
