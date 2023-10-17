@@ -8,17 +8,11 @@ using System.Threading.Tasks;
 
 namespace FairPlayBudget.BudgetImporter.Services
 {
-    public class UserProviderService : IUserProviderService
+    public class UserProviderService(ImportConfiguration importConfiguration) : IUserProviderService
     {
-        private readonly ImportConfiguration importConfiguration;
-
-        public UserProviderService(ImportConfiguration importConfiguration) 
-        {
-            this.importConfiguration = importConfiguration;
-        }
         public string GetCurrentUserId()
         {
-            return this.importConfiguration.UserId!;
+            return importConfiguration.UserId!;
         }
     }
 }

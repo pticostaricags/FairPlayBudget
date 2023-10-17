@@ -11,21 +11,12 @@ using System.Threading.Tasks;
 
 namespace FairPlayBudget.ServerSideServices
 {
-    public class BalanceService : IBalanceService
+    public class BalanceService(FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext,
+        IUserProviderService userProvider) : IBalanceService
     {
-        private readonly FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext;
-        private readonly IUserProviderService userProvider;
-
-        public BalanceService(FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext,
-            IUserProviderService userProvider)
-        {
-            this.fairPlayBudgetDatabaseContext = fairPlayBudgetDatabaseContext;
-            this.userProvider = userProvider;
-        }
-
         public async Task<string[]> GetBudgetNamesAsync(CancellationToken cancellationToken)
         {
-            var result = await this.fairPlayBudgetDatabaseContext!
+            var result = await fairPlayBudgetDatabaseContext!
                 .MonthlyBudgetInfo.Select(p => p.Description).Distinct().ToArrayAsync(
                 cancellationToken: cancellationToken);
             return result;
@@ -36,8 +27,8 @@ namespace FairPlayBudget.ServerSideServices
             Currency currency,
             CancellationToken cancellationToken)
         {
-            var userId = this.userProvider.GetCurrentUserId();
-            var result = await this.fairPlayBudgetDatabaseContext.VwBalance
+            var userId = userProvider.GetCurrentUserId();
+            var result = await fairPlayBudgetDatabaseContext.VwBalance
                 .Where(p => p.OwnerId == userId && p.MonthlyBudgetDescription == budgetName
                 && p.CurrencyId == (int)currency
                 )

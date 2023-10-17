@@ -15,13 +15,15 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
     public class MonthlyBudgetInfoServiceTests : ServerSideServicesTestBase
     {
         [ClassInitialize]
-        public static async Task ClassInitialize(TestContext testContext)
+#pragma warning disable IDE0060 // Remove unused parameter
+        public static async Task ClassInitializeAsync(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             await ServerSideServicesTestBase._msSqlContainer.StartAsync();
         }
 
         [ClassCleanup()]
-        public static async Task ClassCleanup()
+        public static async Task ClassCleanupAsync()
         {
             if (ServerSideServicesTestBase._msSqlContainer.State == DotNet.Testcontainers.Containers.TestcontainersStates.Running)
             {
@@ -30,9 +32,9 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         }
 
         [TestCleanup]
-        public async Task TestCleanup()
+        public async Task TestCleanupAsync()
         {
-            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             foreach (var expense in ctx.Expense)
             {
                 ctx.Expense.Remove(expense);
@@ -54,7 +56,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
 
         private static async Task<AspNetUsers> CreateTestUserAsync(FairPlayBudgetDatabaseContext ctx)
         {
-            AspNetUsers userEntity = new AspNetUsers()
+            AspNetUsers userEntity = new()
             {
                 Id = Guid.NewGuid().ToString(),
                 AccessFailedCount = 0,
@@ -79,15 +81,15 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_CreateMonthlyBudgetInfoAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
-            CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel = new CreateMonthlyBudgetInfoModel()
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
+            CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel = new()
             {
                 Description = "Description",
-                Transactions = new List<CreateTransactionModel>()
-                {
+                Transactions =
+                [
                     new CreateTransactionModel()
                     {
                         Amount=100,
@@ -104,7 +106,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                         TransactionDateTime = DateTimeOffset.UtcNow,
                         TransactionType = Common.Enums.TransactionType.Debit
                     }
-                }
+                ]
             };
             await monthlyBudgetInfoService.CreateMonthlyBudgetInfoAsync(createMonthlyBudgetInfoModel, CancellationToken.None);
             MonthlyBudgetInfo entity = await ctx.MonthlyBudgetInfo.SingleAsync();
@@ -114,16 +116,16 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_UpdateMonthlyBudgetInfoAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
-            CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel = new CreateMonthlyBudgetInfoModel()
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
+            CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel = new()
             {
                 Description = "Description",
-                Transactions = new List<CreateTransactionModel>()
-                {
-                    new CreateTransactionModel()
+                Transactions =
+                [
+                    new()
                     {
                         Amount=100,
                         Currency = Common.Enums.Currency.USD,
@@ -131,7 +133,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                         TransactionDateTime = DateTimeOffset.UtcNow,
                         TransactionType = Common.Enums.TransactionType.Credit
                     },
-                    new CreateTransactionModel()
+                    new()
                     {
                         Amount=100,
                         Currency = Common.Enums.Currency.USD,
@@ -139,7 +141,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                         TransactionDateTime = DateTimeOffset.UtcNow,
                         TransactionType = Common.Enums.TransactionType.Debit
                     }
-                }
+                ]
             };
             await monthlyBudgetInfoService.CreateMonthlyBudgetInfoAsync(createMonthlyBudgetInfoModel, CancellationToken.None);
             MonthlyBudgetInfo entity = await ctx.MonthlyBudgetInfo.SingleAsync();
@@ -154,10 +156,10 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_GetMyMonthlyBudgetInfoListAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
             await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
             {
                 Description = "Test 1",
@@ -182,13 +184,13 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_ImportFromTransactionsFileStreamAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
             var bytes = Encoding.UTF8.GetBytes(Properties.Resources.TransactionsFileTemplate);
             CreateMonthlyBudgetInfoModel? result = null;
-            using (MemoryStream memoryStream = new MemoryStream(bytes))
+            using (MemoryStream memoryStream = new(bytes))
             {
                 result = 
                 await monthlyBudgetInfoService.ImportFromTransactionsFileStreamAsync(
@@ -202,13 +204,13 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_ImportFromCreditCardFileStreamAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
             var bytes = Encoding.UTF8.GetBytes(Properties.Resources.CreditTransactionsFileTemplate);
             CreateMonthlyBudgetInfoModel? result = null;
-            using (MemoryStream memoryStream = new MemoryStream(bytes))
+            using (MemoryStream memoryStream = new(bytes))
             {
                 result =
                 await monthlyBudgetInfoService.ImportFromCreditCardFileStreamAsync(
@@ -222,10 +224,10 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_LoadMonthlyBudgetInfoAsync()
         {
-            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            FairPlayBudgetDatabaseContext ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             var userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await ServerSideServicesTestBase.GetMonthlyBudgetInfoServiceAsync();
             await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
             {
                 Description = "Test 1",

@@ -10,13 +10,15 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
     public class BalanceServiceTests : ServerSideServicesTestBase
     {
         [ClassInitialize]
-        public static async Task ClassInitialize(TestContext testContext)
+#pragma warning disable IDE0060 // Remove unused parameter
+        public static async Task ClassInitializeAsync(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             await ServerSideServicesTestBase._msSqlContainer.StartAsync();
         }
 
         [ClassCleanup()]
-        public static async Task ClassCleanup()
+        public static async Task ClassCleanupAsync()
         {
             if (ServerSideServicesTestBase._msSqlContainer.State == DotNet.Testcontainers.Containers.TestcontainersStates.Running)
             {
@@ -25,9 +27,9 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         }
 
         [TestCleanup]
-        public async Task TestCleanup()
+        public async Task TestCleanupAsync()
         {
-            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             foreach (var expense in ctx.Expense)
             {
                 ctx.Expense.Remove(expense);
@@ -50,18 +52,18 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_GetBudgetNamesAsync()
         {
-            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             AspNetUsers userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
             string budgetName = "Automated Test #1";
-            MonthlyBudgetInfo monthlyBudgetInfo = new MonthlyBudgetInfo()
+            MonthlyBudgetInfo monthlyBudgetInfo = new()
             {
                 Description = budgetName,
                 OwnerId = ServerSideServicesTestBase.CurrentUserId
             };
             await ctx.MonthlyBudgetInfo.AddAsync(monthlyBudgetInfo);
             await ctx.SaveChangesAsync();
-            IBalanceService balanceService = await base.GetBalanceServiceInstanceAsync();
+            IBalanceService balanceService = await ServerSideServicesTestBase.GetBalanceServiceInstanceAsync();
             var budgetsInfo = await balanceService.GetBudgetNamesAsync(CancellationToken.None);
             Assert.IsNotNull(budgetsInfo);
             Assert.AreEqual(1, budgetsInfo.Length);
@@ -73,7 +75,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
 
         private static async Task<AspNetUsers> CreateTestUserAsync(FairPlayBudgetDatabaseContext ctx)
         {
-            AspNetUsers userEntity = new AspNetUsers()
+            AspNetUsers userEntity = new()
             {
                 Id = Guid.NewGuid().ToString(),
                 AccessFailedCount = 0,
@@ -98,16 +100,16 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_GetMyBalanceAsync()
         {
-            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var ctx = await ServerSideServicesTestBase.GetFairPlayBudgetDatabaseContextAsync();
             AspNetUsers userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            MonthlyBudgetInfo monthlyBudgetInfo = new MonthlyBudgetInfo()
+            MonthlyBudgetInfo monthlyBudgetInfo = new()
             {
                 Description = $"Automated Test: {nameof(Test_GetMyBalanceAsync)}",
                 OwnerId = userEntity.Id,
                 Expense = new Expense[]
                 {
-                    new Expense()
+                    new()
                     {
                         Amount = 100,
                         CurrencyId = (int)Common.Enums.Currency.USD,
@@ -118,7 +120,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                 },
                 Income = new Income[] 
                 {
-                    new Income()
+                    new()
                     {
                         Amount = 100,
                         CurrencyId = (int)Common.Enums.Currency.USD,

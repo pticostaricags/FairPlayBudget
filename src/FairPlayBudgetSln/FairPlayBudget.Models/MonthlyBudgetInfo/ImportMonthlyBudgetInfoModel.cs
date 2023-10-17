@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace FairPlayBudget.Models.MonthlyBudgetInfo
 {
+#pragma warning disable IDE1006 // Naming Styles
     public class ImportTransactionsMonthlyBudgetInfoModel
     {
         public string? oficina { get; set; }
@@ -16,3 +17,4 @@ namespace FairPlayBudget.Models.MonthlyBudgetInfo
         public string? descripcion { get; set; }
     }
 }
+#pragma warning restore IDE1006 // Naming Styles

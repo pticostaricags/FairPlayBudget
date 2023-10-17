@@ -15,25 +15,18 @@ using System.Threading.Tasks;
 
 namespace FairPlayBudget.ServerSideServices
 {
-    public class MonthlyBudgetInfoService : IMonthlyBudgetInfoService
+    public class MonthlyBudgetInfoService(FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext, IUserProviderService userProvider) : IMonthlyBudgetInfoService
     {
-        private readonly FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext;
-        private readonly IUserProviderService userProvider;
-
-        public MonthlyBudgetInfoService(FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext, IUserProviderService userProvider)
-        {
-            this.fairPlayBudgetDatabaseContext = fairPlayBudgetDatabaseContext;
-            this.userProvider = userProvider;
-        }
-
         public async Task CreateMonthlyBudgetInfoAsync(
             CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel,
             CancellationToken cancellationToken)
         {
-            var userId = this.userProvider.GetCurrentUserId();
-            MonthlyBudgetInfo entity = new MonthlyBudgetInfo();
-            entity.Description = createMonthlyBudgetInfoModel.Description;
-            entity.OwnerId = userId;
+            var userId = userProvider.GetCurrentUserId();
+            MonthlyBudgetInfo entity = new()
+            {
+                Description = createMonthlyBudgetInfoModel.Description,
+                OwnerId = userId
+            };
             if (createMonthlyBudgetInfoModel.Transactions?.Count > 0)
             {
                 foreach (var singleTransaction in createMonthlyBudgetInfoModel.Transactions)
@@ -62,30 +55,32 @@ namespace FairPlayBudget.ServerSideServices
                             break;
                     };
                 }
-                await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+                await fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
                     .AddAsync(entity, cancellationToken: cancellationToken);
-                await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(
+                await fairPlayBudgetDatabaseContext.SaveChangesAsync(
                     cancellationToken: cancellationToken);
             }
         }
 
         public async Task UpdateMonthlyBudgetInfoAsync(long monthlyBudgetInfoModelId, CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel, CancellationToken cancellationToken)
         {
-            var userId = this.userProvider.GetCurrentUserId();
-            var monthlyInfoEntity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+            var userId = userProvider.GetCurrentUserId();
+            var monthlyInfoEntity = await fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
                 .Include(p=>p.Expense)
                 .Include(p=>p.Income)
                 .SingleOrDefaultAsync(p => p.MonthlyBudgetInfoId == monthlyBudgetInfoModelId, cancellationToken);
             if (monthlyInfoEntity != null)
             {
-                this.fairPlayBudgetDatabaseContext.Expense.RemoveRange(monthlyInfoEntity.Expense);
-                this.fairPlayBudgetDatabaseContext.Income.RemoveRange(monthlyInfoEntity.Income);
-                this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.Remove(monthlyInfoEntity);
-                await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(cancellationToken:cancellationToken);
+                fairPlayBudgetDatabaseContext.Expense.RemoveRange(monthlyInfoEntity.Expense);
+                fairPlayBudgetDatabaseContext.Income.RemoveRange(monthlyInfoEntity.Income);
+                fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.Remove(monthlyInfoEntity);
+                await fairPlayBudgetDatabaseContext.SaveChangesAsync(cancellationToken:cancellationToken);
             }
-            MonthlyBudgetInfo entity = new MonthlyBudgetInfo();
-            entity.Description = createMonthlyBudgetInfoModel.Description;
-            entity.OwnerId = userId;
+            MonthlyBudgetInfo entity = new()
+            {
+                Description = createMonthlyBudgetInfoModel.Description,
+                OwnerId = userId
+            };
             if (createMonthlyBudgetInfoModel.Transactions?.Count > 0)
             {
                 foreach (var singleTransaction in createMonthlyBudgetInfoModel.Transactions)
@@ -114,10 +109,10 @@ namespace FairPlayBudget.ServerSideServices
                             break;
                     };
                 }
-                await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+                await fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
                     .AddAsync(entity, cancellationToken: cancellationToken);
             }
-            await this.fairPlayBudgetDatabaseContext.SaveChangesAsync(
+            await fairPlayBudgetDatabaseContext.SaveChangesAsync(
                     cancellationToken: cancellationToken);
         }
 
@@ -125,55 +120,51 @@ namespace FairPlayBudget.ServerSideServices
         {
             try
             {
-                CreateMonthlyBudgetInfoModel result = new CreateMonthlyBudgetInfoModel()
+                CreateMonthlyBudgetInfoModel result = new()
                 {
-                    Transactions = new List<CreateTransactionModel>()
+                    Transactions = []
                 };
-                using (StreamReader streamReader = new StreamReader(stream))
+                using (StreamReader streamReader = new(stream))
                 {
-                    using (CsvParser csvParser = new CsvParser(streamReader, configuration:
+                    using CsvParser csvParser = new(streamReader, configuration:
                         new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
                         {
                             Delimiter = ";",
                             ShouldQuote = ((ShouldQuoteArgs args) => { return false; })
-                        }))
+                        });
+                    using CsvReader csvReader = new(csvParser);
+                    var records = csvReader.GetRecordsAsync<ImportTransactionsMonthlyBudgetInfoModel>(
+                                                cancellationToken: cancellationToken)
+                                                .ConfigureAwait(continueOnCapturedContext: false);
+                    await foreach (var singleRecord in records)
                     {
-                        using (CsvReader csvReader = new CsvReader(csvParser))
-                        {
-                            var records = csvReader.GetRecordsAsync<ImportTransactionsMonthlyBudgetInfoModel>(
-                                                        cancellationToken: cancellationToken)
-                                                        .ConfigureAwait(continueOnCapturedContext: false);
-                            await foreach (var singleRecord in records)
-                            {
-                                if (String.IsNullOrWhiteSpace(singleRecord.fechaMovimiento))
-                                    continue;
-                                DateTime dt = DateTime
-                                    .ParseExact(singleRecord.fechaMovimiento!, "dd/MM/yyyy",
-                                    CultureInfo.InvariantCulture);
+                        if (String.IsNullOrWhiteSpace(singleRecord.fechaMovimiento))
+                            continue;
+                        DateTime dt = DateTime
+                            .ParseExact(singleRecord.fechaMovimiento!, "dd/MM/yyyy",
+                            CultureInfo.InvariantCulture);
 
-                                CreateTransactionModel transaction = new CreateTransactionModel()
-                                {
-                                    Description = singleRecord.descripcion,
-                                    TransactionDateTime = dt,
-                                };
-                                if (singleRecord.debito != null)
-                                {
-                                    transaction.Amount = singleRecord.debito;
-                                    transaction.TransactionType = Common.Enums.TransactionType.Debit;
-                                }
-                                else
-                                if (singleRecord.credito != null)
-                                {
-                                    transaction.Amount = singleRecord.credito;
-                                    transaction.TransactionType = Common.Enums.TransactionType.Credit;
-                                }
-                                else
-                                {
-                                    throw new Exception("There are rows with no value for either debit nor credit");
-                                }
-                                result.Transactions!.Add(transaction);
-                            }
+                        CreateTransactionModel transaction = new()
+                        {
+                            Description = singleRecord.descripcion,
+                            TransactionDateTime = dt,
+                        };
+                        if (singleRecord.debito != null)
+                        {
+                            transaction.Amount = singleRecord.debito;
+                            transaction.TransactionType = Common.Enums.TransactionType.Debit;
                         }
+                        else
+                        if (singleRecord.credito != null)
+                        {
+                            transaction.Amount = singleRecord.credito;
+                            transaction.TransactionType = Common.Enums.TransactionType.Credit;
+                        }
+                        else
+                        {
+                            throw new Exception("There are rows with no value for either debit nor credit");
+                        }
+                        result.Transactions!.Add(transaction);
                     }
                 }
                 return result;
@@ -188,73 +179,69 @@ namespace FairPlayBudget.ServerSideServices
         {
             try
             {
-                CreateMonthlyBudgetInfoModel result = new CreateMonthlyBudgetInfoModel()
+                CreateMonthlyBudgetInfoModel result = new()
                 {
-                    Transactions = new List<CreateTransactionModel>()
+                    Transactions = []
                 };
-                using (StreamReader streamReader = new StreamReader(stream))
+                using (StreamReader streamReader = new(stream))
                 {
-                    using (CsvParser csvParser = new CsvParser(streamReader, configuration:
+                    using CsvParser csvParser = new(streamReader, configuration:
                         new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
                         {
                             Delimiter = ",",
                             ShouldQuote = ((ShouldQuoteArgs args) => { return false; })
-                        }))
+                        });
+                    using CsvReader csvReader = new(csvParser);
+                    var records = csvReader.GetRecordsAsync<ImportCreditCardMonthlyBudgetInfoModel>(
+                                                cancellationToken: cancellationToken)
+                                                .ConfigureAwait(continueOnCapturedContext: false);
+                    await foreach (var singleRecord in records)
                     {
-                        using (CsvReader csvReader = new CsvReader(csvParser))
+                        if (String.IsNullOrWhiteSpace(singleRecord.Fecha))
+                            continue;
+                        try
                         {
-                            var records = csvReader.GetRecordsAsync<ImportCreditCardMonthlyBudgetInfoModel>(
-                                                        cancellationToken: cancellationToken)
-                                                        .ConfigureAwait(continueOnCapturedContext: false);
-                            await foreach (var singleRecord in records)
+                            DateTime dt = DateTime
+                                .ParseExact(singleRecord.Fecha!, "d/M/yyyy",
+                                CultureInfo.InvariantCulture);
+
+                            CreateTransactionModel transaction = new()
                             {
-                                if (String.IsNullOrWhiteSpace(singleRecord.Fecha))
-                                    continue;
-                                try
+                                Description = singleRecord.Establecimiento,
+                                TransactionDateTime = dt,
+                            };
+                            if (singleRecord.Monto != null)
+                            {
+                                if (singleRecord.Monto.Value > 0)
                                 {
-                                    DateTime dt = DateTime
-                                        .ParseExact(singleRecord.Fecha!, "d/M/yyyy",
-                                        CultureInfo.InvariantCulture);
-
-                                    CreateTransactionModel transaction = new CreateTransactionModel()
-                                    {
-                                        Description = singleRecord.Establecimiento,
-                                        TransactionDateTime = dt,
-                                    };
-                                    if (singleRecord.Monto != null)
-                                    {
-                                        if (singleRecord.Monto.Value > 0)
-                                        {
-                                            transaction.Amount = singleRecord.Monto;
-                                            transaction.TransactionType = Common.Enums.TransactionType.Debit;
-                                        }
-                                        else
-                                        {
-                                            transaction.Amount = singleRecord.Monto;
-                                            transaction.TransactionType = Common.Enums.TransactionType.Credit;
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("There are rows with no value for either debit nor credit");
-                                    }
-                                    switch (singleRecord.Moneda)
-                                    {
-                                        case "Colones":
-                                            transaction.Currency = Common.Enums.Currency.CRC;
-                                            break;
-                                        case "Dólares":
-                                            transaction.Currency = Common.Enums.Currency.USD;
-                                            break;
-                                    }
-                                    result.Transactions!.Add(transaction);
+                                    transaction.Amount = singleRecord.Monto;
+                                    transaction.TransactionType = Common.Enums.TransactionType.Debit;
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    throw new Exception(ex.Message);
+                                    transaction.Amount = singleRecord.Monto;
+                                    transaction.TransactionType = Common.Enums.TransactionType.Credit;
                                 }
+
                             }
+                            else
+                            {
+                                throw new Exception("There are rows with no value for either debit nor credit");
+                            }
+                            switch (singleRecord.Moneda)
+                            {
+                                case "Colones":
+                                    transaction.Currency = Common.Enums.Currency.CRC;
+                                    break;
+                                case "Dólares":
+                                    transaction.Currency = Common.Enums.Currency.USD;
+                                    break;
+                            }
+                            result.Transactions!.Add(transaction);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message);
                         }
                     }
                 }
@@ -268,38 +255,42 @@ namespace FairPlayBudget.ServerSideServices
 
         public async Task<CreateMonthlyBudgetInfoModel> LoadMonthlyBudgetInfoAsync(long monthlyBudgetInfoId, CancellationToken cancellationToken)
         {
-            var entity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
+            var entity = await fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
                 .Include(p => p.Expense)
                 .Include(p => p.Income)
                 .Where(p => p.MonthlyBudgetInfoId == monthlyBudgetInfoId)
                 .SingleAsync(cancellationToken:cancellationToken);
-            CreateMonthlyBudgetInfoModel result = new CreateMonthlyBudgetInfoModel();
-            result.Description = entity.Description;
-            result.Transactions =
-                    entity.Income.Select(p => new CreateTransactionModel()
-                    {
-                        Amount = p.Amount,
-                        Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
-                        Description = p.Description,
-                        TransactionDateTime = p.IncomeDateTime,
-                        TransactionType = TransactionType.Credit
-                    })
-                    .Union(entity.Expense.Select(p => new CreateTransactionModel()
-                    {
-                        Amount = p.Amount,
-                        Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
-                        Description = p.Description,
-                        TransactionDateTime = p.ExpenseDateTime,
-                        TransactionType = TransactionType.Debit
-                    }))
-                    .OrderByDescending(p => p.TransactionDateTime).ToList();
+            CreateMonthlyBudgetInfoModel result = new()
+            {
+                Description = entity.Description,
+                Transactions =
+                    [
+                        .. entity.Income.Select(p => new CreateTransactionModel()
+                        {
+                            Amount = p.Amount,
+                            Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
+                            Description = p.Description,
+                            TransactionDateTime = p.IncomeDateTime,
+                            TransactionType = TransactionType.Credit
+                        })
+                        .Union(entity.Expense.Select(p => new CreateTransactionModel()
+                        {
+                            Amount = p.Amount,
+                            Currency = Enum.Parse<Common.Enums.Currency>(p.CurrencyId.ToString()),
+                            Description = p.Description,
+                            TransactionDateTime = p.ExpenseDateTime,
+                            TransactionType = TransactionType.Debit
+                        }))
+                        .OrderByDescending(p => p.TransactionDateTime),
+                    ]
+            };
             return result;
         }
 
         public async Task<MonthlyBudgetInfoModel[]?> GetMyMonthlyBudgetInfoListAsync(CancellationToken cancellationToken)
         {
-            var userId = this.userProvider.GetCurrentUserId();
-            var result = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.AsNoTracking()
+            var userId = userProvider.GetCurrentUserId();
+            var result = await fairPlayBudgetDatabaseContext.MonthlyBudgetInfo.AsNoTracking()
                 .Where(p => p.OwnerId == userId)
                 .Select(p=> new MonthlyBudgetInfoModel()
                 {

@@ -7,9 +7,11 @@ using FairPlayBudget.ServerSideServices;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
-ImportConfiguration importConfiguration = new ImportConfiguration();
-importConfiguration.ImportFolder = builder.Configuration["ImportFolder"];
-importConfiguration.UserId = builder.Configuration["UserId"];
+ImportConfiguration importConfiguration = new()
+{
+    ImportFolder = builder.Configuration["ImportFolder"],
+    UserId = builder.Configuration["UserId"]
+};
 builder.Services.AddSingleton<ImportConfiguration>(importConfiguration);
 builder.Services.AddSingleton<MonthlyBudgetInfoService>();
 

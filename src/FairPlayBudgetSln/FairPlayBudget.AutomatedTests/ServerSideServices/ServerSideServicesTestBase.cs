@@ -17,10 +17,10 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         public static string? CurrentUserId { get; protected set; }
         public static readonly MsSqlContainer _msSqlContainer
         = new MsSqlBuilder().Build();
-        protected async Task<FairPlayBudgetDatabaseContext> GetFairPlayBudgetDatabaseContextAsync()
+        protected static async Task<FairPlayBudgetDatabaseContext> GetFairPlayBudgetDatabaseContextAsync()
         {
             DbContextOptionsBuilder<FairPlayBudgetDatabaseContext> dbContextOptionsBuilder =
-                new DbContextOptionsBuilder<FairPlayBudgetDatabaseContext>();
+                new();
             dbContextOptionsBuilder.UseSqlServer(_msSqlContainer.GetConnectionString(),
                 sqlServerOptionsAction =>
                 {
@@ -30,30 +30,30 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                             errorNumbersToAdd: null);
                 });
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext =
-                new FairPlayBudgetDatabaseContext(dbContextOptionsBuilder.Options);
+                new(dbContextOptionsBuilder.Options);
             await fairPlayBudgetDatabaseContext.Database.EnsureCreatedAsync();
             await fairPlayBudgetDatabaseContext.Database.ExecuteSqlRawAsync(Properties.Resources.SeedData);
             return fairPlayBudgetDatabaseContext;
         }
 
-        private IUserProviderService GetUserProviderService()
+        private static TestUserProviderService GetUserProviderService()
         {
             return new TestUserProviderService();
         }
 
-        internal async Task<IBalanceService> GetBalanceServiceInstanceAsync()
+        internal static async Task<IBalanceService> GetBalanceServiceInstanceAsync()
         {
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext = 
-                await this.GetFairPlayBudgetDatabaseContextAsync();
-            IUserProviderService userProviderService = this.GetUserProviderService();
+                await GetFairPlayBudgetDatabaseContextAsync();
+            IUserProviderService userProviderService = GetUserProviderService();
             return new BalanceService(fairPlayBudgetDatabaseContext, userProviderService);
         }
 
-        internal async Task<IMonthlyBudgetInfoService> GetMonthlyBudgetInfoServiceAsync()
+        internal static async Task<IMonthlyBudgetInfoService> GetMonthlyBudgetInfoServiceAsync()
         {
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext =
-                await this.GetFairPlayBudgetDatabaseContextAsync();
-            IUserProviderService userProviderService = this.GetUserProviderService();
+                await GetFairPlayBudgetDatabaseContextAsync();
+            IUserProviderService userProviderService = GetUserProviderService();
             return new MonthlyBudgetInfoService(fairPlayBudgetDatabaseContext, userProviderService);
         }
     }
