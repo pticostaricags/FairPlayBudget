@@ -1,3 +1,5 @@
+using FairPlayBudget.Common.Enums;
+using FairPlayBudget.DataAccess.Data;
 using FairPlayBudget.DataAccess.Models;
 using FairPlayBudget.Interfaces.Services;
 using System.Diagnostics;
@@ -25,8 +27,29 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         [TestMethod]
         public async Task Test_GetBudgetNamesAsync()
         {
-            var ctx = base.GetFairPlayBudgetDatabaseContext();
-            await ctx.Database.EnsureCreatedAsync();
+            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            AspNetUsers userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            string budgetName = "Automated Test #1";
+            MonthlyBudgetInfo monthlyBudgetInfo = new MonthlyBudgetInfo()
+            {
+                Description = budgetName,
+                OwnerId = ServerSideServicesTestBase.CurrentUserId
+            };
+            await ctx.MonthlyBudgetInfo.AddAsync(monthlyBudgetInfo);
+            await ctx.SaveChangesAsync();
+            IBalanceService balanceService = await base.GetBalanceServiceInstanceAsync();
+            var budgetsInfo = await balanceService.GetBudgetNamesAsync(CancellationToken.None);
+            Assert.IsNotNull(budgetsInfo);
+            Assert.AreEqual(1, budgetsInfo.Length);
+            Assert.AreEqual(budgetName, budgetsInfo.Single());
+            ctx.MonthlyBudgetInfo.Remove(monthlyBudgetInfo);
+            ctx.AspNetUsers.Remove(userEntity);
+            ctx.SaveChanges();
+        }
+
+        private static async Task<AspNetUsers> CreateTestUserAsync(FairPlayBudgetDatabaseContext ctx)
+        {
             AspNetUsers userEntity = new AspNetUsers()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -46,23 +69,46 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
             };
             await ctx.AspNetUsers.AddAsync(userEntity);
             await ctx.SaveChangesAsync();
+            return userEntity;
+        }
+
+        [TestMethod]
+        public async Task Test_GetMyBalanceAsync()
+        {
+            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            AspNetUsers userEntity = await CreateTestUserAsync(ctx);
             ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
-            string budgetName = "Automated Test #1";
             MonthlyBudgetInfo monthlyBudgetInfo = new MonthlyBudgetInfo()
             {
-                Description = budgetName,
-                OwnerId = ServerSideServicesTestBase.CurrentUserId
+                Description = $"Automated Test: {nameof(Test_GetMyBalanceAsync)}",
+                OwnerId = userEntity.Id,
+                Expense = new Expense[]
+                {
+                    new Expense()
+                    {
+                        Amount = 100,
+                        CurrencyId = (int)Common.Enums.Currency.USD,
+                        ExpenseDateTime = DateTimeOffset.UtcNow,
+                        Description = "Test Expense",
+                        OwnerId = userEntity.Id,
+                    }
+                },
+                Income = new Income[] 
+                {
+                    new Income()
+                    {
+                        Amount = 100,
+                        CurrencyId = (int)Common.Enums.Currency.USD,
+                        IncomeDateTime = DateTimeOffset.UtcNow,
+                        Description = "Test Income",
+                        OwnerId= userEntity.Id,
+                    }
+                }
             };
             await ctx.MonthlyBudgetInfo.AddAsync(monthlyBudgetInfo);
             await ctx.SaveChangesAsync();
-            IBalanceService balanceService = base.GetBalanceServiceInstance();
-            var budgetsInfo = await balanceService.GetBudgetNamesAsync(CancellationToken.None);
-            Assert.IsNotNull(budgetsInfo);
-            Assert.AreEqual(1, budgetsInfo.Length);
-            Assert.AreEqual(budgetName, budgetsInfo.Single());
-            ctx.MonthlyBudgetInfo.Remove(monthlyBudgetInfo);
-            ctx.AspNetUsers.Remove(userEntity);
-            ctx.SaveChanges();
+            var budgetEntity = ctx.MonthlyBudgetInfo.Single();
+            Assert.AreEqual(monthlyBudgetInfo.Description, budgetEntity.Description);
         }
     }
 }

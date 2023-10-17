@@ -17,7 +17,7 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
         public static string? CurrentUserId { get; protected set; }
         public static readonly MsSqlContainer _msSqlContainer
         = new MsSqlBuilder().Build();
-        protected FairPlayBudgetDatabaseContext GetFairPlayBudgetDatabaseContext()
+        protected async Task<FairPlayBudgetDatabaseContext> GetFairPlayBudgetDatabaseContextAsync()
         {
             DbContextOptionsBuilder<FairPlayBudgetDatabaseContext> dbContextOptionsBuilder =
                 new DbContextOptionsBuilder<FairPlayBudgetDatabaseContext>();
@@ -31,6 +31,8 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
                 });
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext =
                 new FairPlayBudgetDatabaseContext(dbContextOptionsBuilder.Options);
+            await fairPlayBudgetDatabaseContext.Database.EnsureCreatedAsync();
+            await fairPlayBudgetDatabaseContext.Database.ExecuteSqlRawAsync(Properties.Resources.SeedData);
             return fairPlayBudgetDatabaseContext;
         }
 
@@ -39,9 +41,10 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
             return new TestUserProviderService();
         }
 
-        protected IBalanceService GetBalanceServiceInstance()
+        protected async Task<IBalanceService> GetBalanceServiceInstanceAsync()
         {
-            FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext = this.GetFairPlayBudgetDatabaseContext();
+            FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext = 
+                await this.GetFairPlayBudgetDatabaseContextAsync();
             IUserProviderService userProviderService = this.GetUserProviderService();
             return new BalanceService(fairPlayBudgetDatabaseContext, userProviderService);
         }
