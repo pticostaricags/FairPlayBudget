@@ -29,6 +29,29 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
             }
         }
 
+        [TestCleanup]
+        public async Task TestCleanup()
+        {
+            var ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            foreach (var expense in ctx.Expense)
+            {
+                ctx.Expense.Remove(expense);
+            }
+            foreach (var income in ctx.Income)
+            {
+                ctx.Income.Remove(income);
+            }
+            foreach (var monthlyBudgetInfo in ctx.MonthlyBudgetInfo)
+            {
+                ctx.MonthlyBudgetInfo.Remove(monthlyBudgetInfo);
+            }
+            foreach (var aspNetUser in ctx.AspNetUsers)
+            {
+                ctx.AspNetUsers.Remove(aspNetUser);
+            }
+            await ctx.SaveChangesAsync();
+        }
+
         private static async Task<AspNetUsers> CreateTestUserAsync(FairPlayBudgetDatabaseContext ctx)
         {
             AspNetUsers userEntity = new AspNetUsers()
