@@ -61,6 +61,17 @@ namespace FairPlayBudget.AutomatedTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ref,Fecha,Tipo,Establecimiento,Monto,Moneda
+        ///123,15/12/2023,COMPRAS,Fresh Market,123,Colones
+        ///123,23/12/2023,PAGOS,DBT CTA,-234,Dólares.
+        /// </summary>
+        public static string CreditTransactionsFileTemplate {
+            get {
+                return ResourceManager.GetString("CreditTransactionsFileTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /*
         ///Post-Deployment Script Template							
         ///--------------------------------------------------------------------------------------
@@ -75,6 +86,20 @@ namespace FairPlayBudget.AutomatedTests.Properties {
         public static string SeedData {
             get {
                 return ResourceManager.GetString("SeedData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to oficina;fechaMovimiento;numeroDocumento;debito;credito;descripcion;
+        ///123;10/12/2023;999;12;;Confites Prueb;
+        ///123;10/12/2023;999;;14;Confites Prueb;
+        ///123;10/12/2023;999;45;;Confites Prueb;
+        ///123;10/12/2023;999;;90;Confites Prueb;
+        ///123;10/12/2023;999;45;;Confites Prueb;.
+        /// </summary>
+        public static string TransactionsFileTemplate {
+            get {
+                return ResourceManager.GetString("TransactionsFileTemplate", resourceCulture);
             }
         }
     }

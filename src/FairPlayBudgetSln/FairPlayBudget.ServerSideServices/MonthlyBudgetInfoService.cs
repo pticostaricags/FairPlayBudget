@@ -69,7 +69,7 @@ namespace FairPlayBudget.ServerSideServices
             }
         }
 
-        public async Task UpdateMonthlyBudgetInfoAsync(int monthlyBudgetInfoModelId, CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel, CancellationToken cancellationToken)
+        public async Task UpdateMonthlyBudgetInfoAsync(long monthlyBudgetInfoModelId, CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel, CancellationToken cancellationToken)
         {
             var userId = this.userProvider.GetCurrentUserId();
             var monthlyInfoEntity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
@@ -266,7 +266,7 @@ namespace FairPlayBudget.ServerSideServices
             }
         }
 
-        public async Task<CreateMonthlyBudgetInfoModel> LoadMonthlyBudgetInfoAsync(int monthlyBudgetInfoId, CancellationToken cancellationToken)
+        public async Task<CreateMonthlyBudgetInfoModel> LoadMonthlyBudgetInfoAsync(long monthlyBudgetInfoId, CancellationToken cancellationToken)
         {
             var entity = await this.fairPlayBudgetDatabaseContext.MonthlyBudgetInfo
                 .Include(p => p.Expense)

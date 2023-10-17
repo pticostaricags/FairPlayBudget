@@ -110,5 +110,132 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
             MonthlyBudgetInfo entity = await ctx.MonthlyBudgetInfo.SingleAsync();
             Assert.AreEqual(createMonthlyBudgetInfoModel.Description, entity.Description);
         }
+
+        [TestMethod]
+        public async Task Test_UpdateMonthlyBudgetInfoAsync()
+        {
+            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            CreateMonthlyBudgetInfoModel createMonthlyBudgetInfoModel = new CreateMonthlyBudgetInfoModel()
+            {
+                Description = "Description",
+                Transactions = new List<CreateTransactionModel>()
+                {
+                    new CreateTransactionModel()
+                    {
+                        Amount=100,
+                        Currency = Common.Enums.Currency.USD,
+                        Description= "Description",
+                        TransactionDateTime = DateTimeOffset.UtcNow,
+                        TransactionType = Common.Enums.TransactionType.Credit
+                    },
+                    new CreateTransactionModel()
+                    {
+                        Amount=100,
+                        Currency = Common.Enums.Currency.USD,
+                        Description= "Description 2",
+                        TransactionDateTime = DateTimeOffset.UtcNow,
+                        TransactionType = Common.Enums.TransactionType.Debit
+                    }
+                }
+            };
+            await monthlyBudgetInfoService.CreateMonthlyBudgetInfoAsync(createMonthlyBudgetInfoModel, CancellationToken.None);
+            MonthlyBudgetInfo entity = await ctx.MonthlyBudgetInfo.SingleAsync();
+            Assert.AreEqual(createMonthlyBudgetInfoModel.Description, entity.Description);
+            createMonthlyBudgetInfoModel.Description = "Description2";
+            await monthlyBudgetInfoService.UpdateMonthlyBudgetInfoAsync(entity.MonthlyBudgetInfoId,
+                createMonthlyBudgetInfoModel, CancellationToken.None);
+            entity = await ctx.MonthlyBudgetInfo.SingleAsync();
+            Assert.AreEqual(createMonthlyBudgetInfoModel.Description, entity.Description);
+        }
+
+        [TestMethod]
+        public async Task Test_GetMyMonthlyBudgetInfoListAsync()
+        {
+            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
+            {
+                Description = "Test 1",
+                OwnerId = userEntity.Id,
+            });
+            await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
+            {
+                Description = "Test 2",
+                OwnerId = userEntity.Id,
+            });
+            await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
+            {
+                Description = "Test 3",
+                OwnerId = userEntity.Id,
+            });
+            await ctx.SaveChangesAsync();
+            var result = await monthlyBudgetInfoService.GetMyMonthlyBudgetInfoListAsync(CancellationToken.None);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Length);
+        }
+
+        [TestMethod]
+        public async Task Test_ImportFromTransactionsFileStreamAsync()
+        {
+            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            var bytes = Encoding.UTF8.GetBytes(Properties.Resources.TransactionsFileTemplate);
+            CreateMonthlyBudgetInfoModel? result = null;
+            using (MemoryStream memoryStream = new MemoryStream(bytes))
+            {
+                result = 
+                await monthlyBudgetInfoService.ImportFromTransactionsFileStreamAsync(
+                    memoryStream, CancellationToken.None);
+                memoryStream.Close();
+            }
+            Assert.IsNotNull(result);
+            Assert.AreEqual(5, result!.Transactions!.Count);
+        }
+
+        [TestMethod]
+        public async Task Test_ImportFromCreditCardFileStreamAsync()
+        {
+            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            var bytes = Encoding.UTF8.GetBytes(Properties.Resources.CreditTransactionsFileTemplate);
+            CreateMonthlyBudgetInfoModel? result = null;
+            using (MemoryStream memoryStream = new MemoryStream(bytes))
+            {
+                result =
+                await monthlyBudgetInfoService.ImportFromCreditCardFileStreamAsync(
+                    memoryStream, CancellationToken.None);
+                memoryStream.Close();
+            }
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result!.Transactions!.Count);
+        }
+
+        [TestMethod]
+        public async Task Test_LoadMonthlyBudgetInfoAsync()
+        {
+            FairPlayBudgetDatabaseContext ctx = await base.GetFairPlayBudgetDatabaseContextAsync();
+            var userEntity = await CreateTestUserAsync(ctx);
+            ServerSideServicesTestBase.CurrentUserId = userEntity.Id;
+            IMonthlyBudgetInfoService monthlyBudgetInfoService = await base.GetMonthlyBudgetInfoServiceAsync();
+            await ctx.MonthlyBudgetInfo.AddAsync(new MonthlyBudgetInfo()
+            {
+                Description = "Test 1",
+                OwnerId = userEntity.Id,
+            });
+            await ctx.SaveChangesAsync();
+            var entity = ctx.MonthlyBudgetInfo.Single();
+            var result = await monthlyBudgetInfoService.LoadMonthlyBudgetInfoAsync(entity.MonthlyBudgetInfoId,CancellationToken.None);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(entity.Description, result.Description);
+        }
     }
 }
