@@ -41,12 +41,20 @@ namespace FairPlayBudget.AutomatedTests.ServerSideServices
             return new TestUserProviderService();
         }
 
-        protected async Task<IBalanceService> GetBalanceServiceInstanceAsync()
+        internal async Task<IBalanceService> GetBalanceServiceInstanceAsync()
         {
             FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext = 
                 await this.GetFairPlayBudgetDatabaseContextAsync();
             IUserProviderService userProviderService = this.GetUserProviderService();
             return new BalanceService(fairPlayBudgetDatabaseContext, userProviderService);
+        }
+
+        internal async Task<IMonthlyBudgetInfoService> GetMonthlyBudgetInfoServiceAsync()
+        {
+            FairPlayBudgetDatabaseContext fairPlayBudgetDatabaseContext =
+                await this.GetFairPlayBudgetDatabaseContextAsync();
+            IUserProviderService userProviderService = this.GetUserProviderService();
+            return new MonthlyBudgetInfoService(fairPlayBudgetDatabaseContext, userProviderService);
         }
     }
 }
