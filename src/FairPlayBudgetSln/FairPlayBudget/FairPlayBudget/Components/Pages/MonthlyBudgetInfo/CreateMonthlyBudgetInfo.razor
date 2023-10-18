@@ -43,6 +43,9 @@
             <div class="col">
                 @nameof(CreateTransactionModel.Currency)
             </div>
+            <div class="col">
+                Actions
+            </div>
         </div>
         foreach (var singleTransaction in this.createMonthlyBudgetInfoModel.Transactions)
         {
@@ -83,6 +86,9 @@
                     </InputSelect>
                     <ValidationMessage For="@( () => singleTransaction.Currency)"></ValidationMessage>
                 </div>
+                <div class="col">
+                    <button class="btn btn-danger" type="button" @onclick="@(()=> OnRemoveTransactionClicked(singleTransaction))">Remove</button>
+                </div>
             </div>
         }
     }
@@ -110,8 +116,8 @@ Override Currency:
     }
 </InputSelect>
 <button class="btn btn-secondary" type="button" @onclick="OnOverrideCurrencyButtonClicked">Set Currency</button>
-@code {
-    [Parameter]
+        @code {
+        [Parameter]
     public int? MonthlyBudgetInfoId { get; set; }
     [Inject]
     private IMonthlyBudgetInfoService? MonthlyBudgetInfoService { get; set; }
@@ -193,4 +199,9 @@ Override Currency:
         }
         IsBusy = false;
     }
+
+        private void OnRemoveTransactionClicked(CreateTransactionModel transactionToRemove)
+        {
+            this.createMonthlyBudgetInfoModel.Transactions!.Remove(transactionToRemove);
+        }
 }
